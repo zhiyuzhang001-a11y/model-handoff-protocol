@@ -1,0 +1,6 @@
+Act as planner/reviewer. Read the project rules, MODEL_HANDOFF.md, STATUS.md,
+docs/IMPLEMENTATION_PLAN.md, the active milestone, latest report, Git state, and
+implementation diff. Independently verify material evidence. Return exactly one
+decision: ACCEPT_STAGE, REFINE, BLOCKED_DECISION, or COMPLETE. If work remains,
+update the handoff with bounded scope, acceptance evidence, stop conditions, and
+one exact first action; never merely say “continue”.

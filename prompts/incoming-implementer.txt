@@ -1,0 +1,7 @@
+Act as implementer. Read the project rules, MODEL_HANDOFF.md, STATUS.md,
+docs/IMPLEMENTATION_PLAN.md, the active milestone, latest report, and Git state.
+Before editing, verify the objective, scope/non-goals, completed evidence,
+acceptance gates, remaining work, stop conditions, and exact next action. Report
+any material conflict. Then execute only the bounded handoff, run named gates,
+and update required records. Hand back exact changes, commands/results, failures,
+deviations, risks, cleanup, and one precise review decision requested.

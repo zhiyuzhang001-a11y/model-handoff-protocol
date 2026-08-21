@@ -1,0 +1,54 @@
+from __future__ import annotations
+
+import tempfile
+import unittest
+from pathlib import Path
+
+from scripts.install import INSTALLS, install
+
+
+class InstallerTests(unittest.TestCase):
+    def test_dry_run_creates_nothing(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            result = install(target)
+            self.assertEqual("dry-run", result["mode"])
+            self.assertTrue(all(item["status"] == "would_create" for item in result["entries"]))
+            for _, destination in INSTALLS:
+                self.assertFalse((target / destination).exists())
+
+    def test_apply_installs_all_files(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            result = install(target, apply=True)
+            self.assertTrue(all(item["status"] == "created" for item in result["entries"]))
+            for _, destination in INSTALLS:
+                self.assertTrue((target / destination).is_file())
+
+    def test_apply_never_overwrites_existing_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            existing = target / "STATUS.md"
+            existing.write_text("user-owned\n", encoding="utf-8")
+            result = install(target, apply=True)
+            status = next(item for item in result["entries"] if item["path"] == "STATUS.md")
+            self.assertEqual("exists", status["status"])
+            self.assertEqual("user-owned\n", existing.read_text(encoding="utf-8"))
+
+    def test_rejects_missing_target(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            missing = Path(directory) / "missing"
+            with self.assertRaisesRegex(ValueError, "target does not exist"):
+                install(missing)
+
+    def test_rejects_symlinked_destination_parent(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as outside:
+            target = Path(directory)
+            cursor = target / ".cursor"
+            cursor.symlink_to(Path(outside), target_is_directory=True)
+            with self.assertRaisesRegex(ValueError, "destination parent is a symlink"):
+                install(target, apply=True)
+
+
+if __name__ == "__main__":
+    unittest.main()

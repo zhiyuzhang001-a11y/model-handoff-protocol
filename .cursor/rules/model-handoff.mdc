@@ -1,0 +1,32 @@
+---
+description: Preserve goals, evidence, and exact next actions across planner, implementer, and reviewer model switches
+alwaysApply: true
+---
+
+# Bidirectional Model Handoff
+
+- Roles are `planner/reviewer` and `implementer`; model names do not grant extra
+  authority. Route ambiguity and judgment to planning/review and bounded work to
+  implementation.
+- Before acting, read `STATUS.md`, `MODEL_HANDOFF.md`,
+  `docs/IMPLEMENTATION_PLAN.md`, the active milestone plan, and its latest report;
+  inspect Git state and verify material handoff claims.
+- Do not edit until you can state the objective, frozen scope, completed evidence,
+  remaining work, stop conditions, and one exact next action.
+- The planner/reviewer hands off objective, non-goals, allowed files/actions,
+  ordered steps, acceptance tests, evidence format, authority boundary, stop
+  conditions, and the first exact implementation action.
+- The implementer hands back exact changes, files, commands/results, failed
+  attempts, deviations, repository/process state, risks, and the precise review
+  or decision requested.
+- Update `MODEL_HANDOFF.md` at every role/model switch and verified stage boundary.
+  Dynamic state belongs there and in `STATUS.md`, never in this rule.
+- Never say “tests pass” without commands and counts or artifact paths. Never
+  report completion while required gates, cleanup, or documentation remain.
+- Do not reinterpret goals, lower gates, repeat completed work, overwrite unknown
+  changes, or continue through a material conflict among plan, status, Git, and
+  observed evidence.
+- One role writes at a time. Before switching, finish or record owned commands,
+  processes, external runs, and temporary state; leave a recoverable repository.
+- Follow `docs/MODEL_HANDOFF_PLAYBOOK.md` for schema, prompts, conflict handling,
+  and examples.

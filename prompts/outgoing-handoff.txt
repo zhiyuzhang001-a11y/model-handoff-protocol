@@ -1,0 +1,8 @@
+I am about to switch models or roles. Stop new implementation work and prepare a
+complete handoff under the project model-handoff rule. Update MODEL_HANDOFF.md,
+STATUS.md, the active milestone plan, and its report when state changed. Record
+the objective, frozen scope, acceptance, completed and remaining work, one exact
+next action, files/Git state, commands/results, failures, decisions, risks, stop
+conditions, live resources, and the precise response requested from the next
+role. Finish or record owned commands and processes, leave a recoverable state,
+then stop.
