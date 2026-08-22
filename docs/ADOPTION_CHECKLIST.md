@@ -25,6 +25,8 @@
 - [ ] Name one user-visible objective and explicit non-goals.
 - [ ] Record exact gates, commands, counts, artifacts, and stop conditions.
 - [ ] Record one exact next action and one requested response.
+- [ ] Set `Review mode` to `inline`, `bugbot`, or `security` only for
+      `EXECUTION_TO_REVIEW`; use `none` for every other state.
 - [ ] Copy the active milestone and exact next action verbatim between status and
       handoff; point to exact required/on-demand headings instead of whole files.
 - [ ] Keep detailed logs and history in referenced artifacts, not the bootstrap.

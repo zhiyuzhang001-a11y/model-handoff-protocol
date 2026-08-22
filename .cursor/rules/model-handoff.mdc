@@ -29,6 +29,8 @@ alwaysApply: true
 - The implementer hands back exact changes, files, commands/results, failed
   attempts, deviations, repository/process state, risks, and the precise review
   or decision requested.
+- Obey `Review mode`: `inline` decides the milestone directly; `bugbot` or `security`
+  runs that exact gate. Never ask the user to choose a reviewer for a checked packet.
 - Update `MODEL_HANDOFF.md` at every role/model switch and verified stage boundary.
   Dynamic state belongs there and in `STATUS.md`, never in this rule.
 - Keep the packet compact and delta-first. Point to exact evidence paths/sections;
@@ -40,10 +42,8 @@ alwaysApply: true
 - Do not reinterpret goals, lower gates, repeat completed work, overwrite unknown
   changes, or continue through a material conflict among plan, status, Git, and
   observed evidence.
-- One role writes at a time. Before switching, finish or record owned commands,
-  processes, external runs, and temporary state; leave a recoverable repository.
+- One role writes at a time; before switching, record owned commands, processes, external runs, and temporary state, leaving a recoverable repository.
 - Before switching, run `python3 .model-handoff/handoff.py check .`. Follow the
   playbook for schema, staged context loading, conflicts, and examples.
-- Log measurable switch friction in `.model-handoff/FEEDBACK.md`; keep project fixes local.
-  Propose generic changes on protocol-source branches with sanitized evidence and tests;
-  review before `main`. Never bootstrap feedback or mutate stable rules mid-task.
+- Log switch friction in `.model-handoff/FEEDBACK.md`; keep project fixes local. Propose
+  generic changes on tested, sanitized branches; review before `main`, never mid-task.

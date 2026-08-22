@@ -89,6 +89,17 @@ After: Continue from the project handoff.
 The incoming model reads `To role` from the bootstrap. Role-specific prompts are
 only needed when the user intentionally overrides the recorded route.
 
+Each packet declares `Review mode: inline | bugbot | security | none`. Ordinary
+`EXECUTION_TO_REVIEW` uses `inline`; a specialized gate uses its exact mode and
+matching command. The checker rejects missing or conflicting routes, so the
+incoming model never asks the user to choose Bugbot or Security Review. Prefer the
+generic incoming phrase above; a bare `review` may route to an optional review
+skill before the protocol packet is read.
+
+When upgrading from protocol 0.2, merge the installed rule, playbook, template,
+and checker together. Then set the live packet to protocol 0.3 and add `Review
+mode`. The new checker rejects partial upgrades instead of guessing a route.
+
 Before changing models:
 
 ```text

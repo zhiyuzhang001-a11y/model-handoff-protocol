@@ -1,10 +1,11 @@
 # Current model handoff
 
-- Protocol version: `0.2`
+- Protocol version: `0.3`
 - Handoff ID: `<date-or-sequence>-<short-purpose>`
 - State: `PLAN_TO_EXECUTE | EXECUTION_TO_REVIEW | REVIEW_TO_EXECUTE | BLOCKED_TO_DECIDE | COMPLETE | IDLE`
 - From role: `planner/reviewer | implementer`
 - To role: `planner/reviewer | implementer`
+- Review mode: `inline | bugbot | security | none`
 - Contract depth: `thin | standard | high-risk`
 - Last verified: `<YYYY-MM-DDTHH:MM:SSZ>`
 - Active milestone: `<relative path#exact heading, or none>`
@@ -82,4 +83,6 @@
 ## Requested response from the next role
 
 `<Implement, review, choose, diagnose, approve, or close—with one precise result
-such as ACCEPT_STAGE_1 or a named defect plus acceptance delta.>`
+such as ACCEPT_STAGE_1 or a named defect plus acceptance delta. When Review mode
+is bugbot or security, name exactly /review-bugbot or /review-security; inline
+milestone review never uses generic /review or asks the user to select a reviewer.>`

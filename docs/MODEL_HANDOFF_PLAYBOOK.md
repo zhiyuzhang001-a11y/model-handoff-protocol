@@ -117,8 +117,8 @@ Only the planner/reviewer may originate plan/review-to-execute, `COMPLETE`, or
 
 Use `templates/MODEL_HANDOFF.md`. Every switch records:
 
-- protocol version, stable ID, roles, verified time, milestone, Git baseline, and
-  working-tree ownership;
+- protocol version, stable ID, roles, explicit review mode, verified time,
+  milestone, Git baseline, and working-tree ownership;
 - one user-visible objective and explicit non-goals;
 - exact acceptance commands, thresholds, artifacts, and cleanup;
 - verified completed work that must not be repeated;
@@ -248,6 +248,25 @@ state, commands/results, and decisions/rationale. The reviewer receives the
 review index and measured results, not full logs; it then opens the named diff and
 evidence artifacts independently.
 
+### Milestone review versus specialized review
+
+Every packet carries `Review mode: inline | bugbot | security | none`. For
+`EXECUTION_TO_REVIEW`, `inline` means the current planner/reviewer performs the
+milestone review directly from the checked packet, diff, gates, and evidence,
+then returns `ACCEPT_STAGE`, `REFINE`, `BLOCKED_DECISION`, or `COMPLETE`. Other
+states require `none`.
+
+`bugbot` and `security` are optional specialized modes. They require the matching
+`/review-bugbot` or `/review-security` command in `Requested response from the
+next role`. The checker rejects missing, invalid, or state-conflicting modes and
+rejects an `inline` packet that also requests a specialized command. The incoming
+role therefore follows a single checked route and never asks the user to choose.
+After a specialized result returns, the planner/reviewer still makes the protocol
+decision unless the frozen contract explicitly says otherwise.
+
+Never put generic `/review` in a handoff packet: that command intentionally opens
+a specialized-review selector. The checker rejects it in every mode.
+
 ## Planner/reviewer decision
 
 The reviewer inspects the relevant diff and material evidence rather than
@@ -290,6 +309,9 @@ irrelevant adversarial variants.
    bootstrap. Use a role-specific prompt only to override the recorded route.
 5. Require the incoming role to begin from the bounded snapshot and report a
    conflict before editing if records do not agree.
+
+Avoid replacing the incoming phrase with a bare `review` or `审核`. Those words can
+route to an optional review skill instead of the protocol milestone decision.
 
 ## Privacy before publishing a real packet
 
@@ -345,6 +367,14 @@ promotion workflow for a protocol-generic candidate:
 GitHub is the shared source and review history, not a runtime dependency. Installed
 projects continue locally. A maintained local clone normally updates with
 `git pull`; downloading a new archive for every task is unnecessary.
+
+### Upgrade from protocol 0.2
+
+Update the installed rule, playbook, template, and `.model-handoff/handoff.py`
+together. Then update the live `MODEL_HANDOFF.md` to protocol `0.3` and add
+`Review mode`: use `inline` for `EXECUTION_TO_REVIEW` unless an exact specialized
+gate is frozen, and `none` for every other state. Run the new checker before the
+next switch. A partial upgrade intentionally fails rather than guessing a route.
 
 ## Reuse in another project
 

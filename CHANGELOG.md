@@ -18,6 +18,9 @@
 - Document safe promotion of target-project feedback: classify local versus
   generic issues, sanitize evidence, use a tested candidate branch, review before
   `main`, preview propagation, and require later live proof before resolution.
+- Add protocol 0.3 `Review mode` routing so inline milestone review and optional
+  Bugbot/Security gates are explicit, checker-enforced, and never require a user
+  choice after switching.
 
 ## 0.1.0 — 2026-08-21
 

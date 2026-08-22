@@ -17,11 +17,12 @@ from scripts.install import install
 
 HANDOFF = """# Current model handoff
 
-- Protocol version: `0.2`
+- Protocol version: `0.3`
 - Handoff ID: `2026-08-22-m1-execute`
 - State: `PLAN_TO_EXECUTE`
 - From role: `planner/reviewer`
 - To role: `implementer`
+- Review mode: `none`
 - Contract depth: `thin`
 - Last verified: `2026-08-22T10:00:00Z`
 - Active milestone: `docs/IMPLEMENTATION_PLAN.md#M1`
@@ -124,7 +125,7 @@ class HandoffTests(unittest.TestCase):
 
     def test_parser_separates_metadata_and_sections(self) -> None:
         record = parse_markdown(HANDOFF)
-        self.assertEqual("0.2", record.metadata["Protocol version"])
+        self.assertEqual("0.3", record.metadata["Protocol version"])
         self.assertIn("Exact next action", record.sections)
 
     def test_parser_ignores_headings_inside_fenced_evidence(self) -> None:
@@ -167,12 +168,74 @@ class HandoffTests(unittest.TestCase):
                 HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
                 .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
                 .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                .replace("- Review mode: `none`", "- Review mode: `inline`")
             )
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
-            snapshot = render_snapshot(inspect_project(target))
+            result = inspect_project(target)
+            snapshot = render_snapshot(result)
+        self.assertEqual([], result["errors"])
         self.assertIn("## Changes and repository state", snapshot)
         self.assertIn("## Commands and results", snapshot)
         self.assertIn("## Decisions and rationale", snapshot)
+
+    def test_execution_review_requires_explicit_review_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            review = (
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
+                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+            )
+            (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
+            errors = inspect_project(target)["errors"]
+        self.assertTrue(any("requires Review mode" in item for item in errors))
+
+    def test_specialized_review_mode_requires_matching_exact_command(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            review = (
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
+                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                .replace("- Review mode: `none`", "- Review mode: `security`")
+            )
+            (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
+            errors = inspect_project(target)["errors"]
+            accepted = review.replace(
+                "Implement and request ACCEPT_STAGE_1.",
+                "Run /review-security, then request ACCEPT_STAGE_1.",
+            )
+            (target / "MODEL_HANDOFF.md").write_text(accepted, encoding="utf-8")
+            accepted_errors = inspect_project(target)["errors"]
+        self.assertTrue(any("requires /review-security" in item for item in errors))
+        self.assertEqual([], accepted_errors)
+
+    def test_nonreview_state_rejects_active_review_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            invalid = HANDOFF.replace(
+                "- Review mode: `none`", "- Review mode: `inline`"
+            )
+            (target / "MODEL_HANDOFF.md").write_text(invalid, encoding="utf-8")
+            errors = inspect_project(target)["errors"]
+        self.assertTrue(any("requires Review mode none" in item for item in errors))
+
+    def test_generic_review_command_is_rejected_as_ambiguous(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            review = (
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
+                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                .replace("- Review mode: `none`", "- Review mode: `inline`")
+                .replace(
+                    "Implement and request ACCEPT_STAGE_1.",
+                    "Run /review and request ACCEPT_STAGE_1.",
+                )
+            )
+            (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
+            errors = inspect_project(target)["errors"]
+        self.assertTrue(any("generic /review is ambiguous" in item for item in errors))
 
     def test_rejects_oversized_bootstrap_section(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

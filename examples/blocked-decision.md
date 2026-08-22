@@ -3,7 +3,8 @@
 This is an abbreviated teaching example, not a valid live packet. Start from
 `templates/MODEL_HANDOFF.md` and complete every required field.
 
-- Protocol version: `0.2`
+- Protocol version: `0.3`
+- Review mode: `none`
 - Handoff ID: `2026-01-16-m5-runtime-choice`
 - State: `BLOCKED_TO_DECIDE`
 - From role: `implementer`

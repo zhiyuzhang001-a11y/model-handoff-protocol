@@ -4,4 +4,6 @@ then inspect the relevant diff and named evidence independently; do not preload
 completed history or full logs. Return exactly one decision: ACCEPT_STAGE,
 REFINE, BLOCKED_DECISION, or COMPLETE. If work remains, write a compact,
 delta-first handoff with exact evidence pointers, stop conditions, and one first
-action; run the handoff checker before returning.
+action; run the handoff checker before returning. Obey the checked `Review mode`:
+perform `inline` yourself, or run the exact `bugbot`/`security` gate named in the
+requested response. Never ask the user to choose between review modes.

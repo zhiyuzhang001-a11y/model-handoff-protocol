@@ -69,6 +69,14 @@ python3 .model-handoff/handoff.py snapshot .
 ```
 
 新模型会从交接中的`To role`自动判断是继续执行还是进行审查。
+交接包还会明确写入`Review mode: inline | bugbot | security | none`：普通
+`EXECUTION_TO_REVIEW`使用`inline`，planner/reviewer直接检查diff和证据；只有合同明确
+要求专项审查时才写`bugbot`或`security`。检查器会拒绝缺失或冲突的模式，因此新模型
+不应再让你二选一。请优先说“请按项目交接继续”，避免只说“审核”触发专项review路由。
+
+从协议0.2升级时，应同时合并规则、Playbook、模板和`.model-handoff/handoff.py`，
+然后把实时`MODEL_HANDOFF.md`改为0.3并补上`Review mode`。检查器会主动拒绝部分升级，
+避免在新旧规则冲突时猜测。
 
 切换前告诉旧模型：
 
