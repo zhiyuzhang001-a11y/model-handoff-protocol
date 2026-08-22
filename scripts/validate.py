@@ -137,6 +137,8 @@ def validate() -> list[str]:
             "Recommended capability: economical | capable",
             "economical models most simple",
             "A second post-fix failure",
+            "python3 .model-handoff/update.py .",
+            "Preview first; never overwrite differs/conflict",
         ),
         "README.zh-CN.md": (
             "通用候选不应直接推送到GitHub `main`",
@@ -144,6 +146,20 @@ def validate() -> list[str]:
             "Recommended capability: economical | capable",
             "默认由经济模型执行大多数简单",
             "修复后第二次失败",
+            "python3 .model-handoff/update.py .",
+            "绝不覆盖 differs 或 conflict",
+        ),
+        "docs/REMOTE_INSTALL.md": (
+            "One-sentence request for a project model",
+            "only protocol-generic changes",
+            "Existing `differs` remain untouched",
+            "repository is currently private",
+            "never paste a token into the project prompt",
+        ),
+        "scripts/bootstrap.py": (
+            "REPOSITORY_URL",
+            "validate_ref",
+            "check=False",
         ),
     }
     for relative, required_phrases in policy_requirements.items():

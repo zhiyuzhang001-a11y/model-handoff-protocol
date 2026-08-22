@@ -403,6 +403,14 @@ GitHub is the shared source and review history, not a runtime dependency. Instal
 projects continue locally. A maintained local clone normally updates with
 `git pull`; downloading a new archive for every task is unnecessary.
 
+For a project without a maintained protocol clone, run
+`python3 .model-handoff/update.py .` only when an update check is requested. It
+fetches one upstream revision into a temporary directory and delegates to the
+same dry-run-first, no-overwrite installer. A new project can begin from the
+copy-ready repository instruction or standalone bootstrap in
+`docs/REMOTE_INSTALL.md`. Existing `differs` always require review; the updater
+does not infer that live state or project-specific rules are disposable.
+
 ### Upgrade from protocol 0.3 or earlier
 
 Update the installed rule, playbook, template, and `.model-handoff/handoff.py`

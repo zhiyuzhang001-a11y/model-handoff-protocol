@@ -31,6 +31,11 @@
   the user whether the next implementer should be economical or capable; all
   planner/reviewer and high-risk handoffs require a capable model, and high-risk
   packets must carry a reasoned coverage matrix.
+- Add a fixed-upstream, dependency-free on-demand update helper that records the
+  fetched commit, uses existing Git credentials without prompting, defaults to
+  preview, and preserves every existing `differs` or `conflict` for manual merge.
+- Add one-sentence English and Chinese project-model requests for installing or
+  updating the protocol from an authenticated GitHub source as project rules.
 
 ## 0.1.0 — 2026-08-21
 

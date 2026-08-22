@@ -19,6 +19,7 @@ INSTALLS = (
     (Path("templates/IMPLEMENTATION_PLAN.md"), Path("docs/IMPLEMENTATION_PLAN.md")),
     (Path("docs/MODEL_HANDOFF_PLAYBOOK.md"), Path("docs/MODEL_HANDOFF_PLAYBOOK.md")),
     (Path("scripts/handoff.py"), Path(".model-handoff/handoff.py")),
+    (Path("scripts/bootstrap.py"), Path(".model-handoff/update.py")),
     (Path("templates/HANDOFF_FEEDBACK.md"), Path(".model-handoff/FEEDBACK.md")),
 )
 

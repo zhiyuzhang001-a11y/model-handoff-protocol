@@ -11,12 +11,16 @@
 
 ## Installation
 
+- [ ] For remote installation, use the fixed upstream URL and preview the exact
+      fetched revision before applying.
 - [ ] Run `python3 scripts/install.py <project>` without `--apply`.
 - [ ] Review every `would_create`, `identical`, `differs`, and `conflict` entry.
 - [ ] Run with `--apply` only after the target and paths are correct.
 - [ ] Manually merge protocol changes for `differs`; resolve `conflict` paths.
 - [ ] Customize project paths and approval boundaries without duplicating rules.
 - [ ] Confirm `python3 .model-handoff/handoff.py snapshot .` runs locally.
+- [ ] Confirm `python3 .model-handoff/update.py .` can preview later upstream
+      changes without overwriting `differs`.
 
 ## First live handoff
 

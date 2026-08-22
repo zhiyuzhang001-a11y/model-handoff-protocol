@@ -31,6 +31,19 @@
 
 ## 安装到现有项目
 
+在任意新项目里，可以直接对模型说：
+
+```text
+从 https://github.com/zhiyuzhang001-a11y/model-handoff-protocol 安装或更新
+model-handoff-protocol，作为当前项目规则；按仓库的安全安装和升级说明执行。
+```
+
+高级模型在有仓库访问权限时，可以根据这句话完成临时拉取、预览、安装和必要的人工合并。
+当前仓库是私有仓库，首次安装使用机器已有的Git或GitHub CLI登录状态，不要在提示词中
+粘贴Token。完整复制版、首次GitHub安装命令和安全说明见
+[`docs/REMOTE_INSTALL.md`](docs/REMOTE_INSTALL.md)。
+其中更明确的安全版提示词要求：先预览，绝不覆盖 differs 或 conflict，并保留项目实时状态。
+
 先预览，不写文件：
 
 ```bash
@@ -45,6 +58,14 @@ python3 scripts/install.py /你的/项目路径 --apply
 
 安装器不会覆盖已有文件，也不会修改全局Codex、编辑器或Agent配置。
 它会同时安装无依赖的`.model-handoff/handoff.py`检查器。
+还会安装`.model-handoff/update.py`；以后不必手工再次克隆，需要检查上游更新时只需运行：
+
+```bash
+python3 .model-handoff/update.py .
+```
+
+该命令只在你明确运行时联网，默认仍是预览，并显示实际获取的提交。需要固定版本时使用
+`--ref <标签或提交>`。
 对已有文件，预览会区分`identical`、`differs`和`conflict`，仍然不写入；升级时应人工合并
 `differs`，以保留项目专属边界和实时状态。
 

@@ -45,6 +45,21 @@ The planner/reviewer independently inspects the referenced diff and evidence.
 
 ## Quick start
 
+In a new project, the simplest request is:
+
+```text
+Install or update model-handoff-protocol from
+https://github.com/zhiyuzhang001-a11y/model-handoff-protocol as this project's
+rules, following the repository's safe installation and upgrade procedure.
+```
+
+A capable project model can perform the safe preview, installation, and any
+manual merge from that instruction when it has repository access. See the
+copy-ready Chinese version and authenticated private-repository procedure in
+[Remote installation and updates](docs/REMOTE_INSTALL.md).
+The longer safety-explicit prompt there says: `Preview first; never overwrite differs/conflict`
+or project live state.
+
 Preview installation into an existing project:
 
 ```bash
@@ -67,12 +82,24 @@ STATUS.md
 docs/IMPLEMENTATION_PLAN.md
 docs/MODEL_HANDOFF_PLAYBOOK.md
 .model-handoff/handoff.py
+.model-handoff/update.py
 .model-handoff/FEEDBACK.md
 ```
 
 For existing destinations, preview reports `identical`, `differs`, or `conflict`
 without changing them. Merge `differs` manually so project-specific rules and
 live state are preserved during protocol upgrades.
+
+After the first authenticated installation, preview the current GitHub `main`
+without another manual clone:
+
+```bash
+python3 .model-handoff/update.py .
+```
+
+The updater runs only when explicitly invoked, prints the fetched commit, and
+uses the same no-overwrite installer. Pin a release or commit with `--ref` when
+reproducibility matters.
 
 You can also copy these files manually. Customize only project-specific paths,
 approval boundaries, and the live handoff content; keep the bidirectional schema
@@ -181,6 +208,8 @@ only relevant `differs`. Resolve feedback only after a later live switch proves 
 - [Detailed playbook](docs/MODEL_HANDOFF_PLAYBOOK.md)
 - [Live handoff template](templates/MODEL_HANDOFF.md)
 - [Live handoff checker and compact snapshot](scripts/handoff.py)
+- [Remote bootstrap and installed update helper](scripts/bootstrap.py)
+- [Remote installation and update procedure](docs/REMOTE_INSTALL.md)
 - [Examples](examples/)
 
 Examples are intentionally abbreviated to teach decision shapes. Start a real

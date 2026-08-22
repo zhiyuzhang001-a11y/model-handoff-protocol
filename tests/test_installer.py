@@ -25,6 +25,7 @@ class InstallerTests(unittest.TestCase):
             for _, destination in INSTALLS:
                 self.assertTrue((target / destination).is_file())
             self.assertTrue((target / ".model-handoff/handoff.py").is_file())
+            self.assertTrue((target / ".model-handoff/update.py").is_file())
 
     def test_installed_project_contains_improvement_workflow(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -44,6 +45,9 @@ class InstallerTests(unittest.TestCase):
             plan = (target / "docs/IMPLEMENTATION_PLAN.md").read_text(
                 encoding="utf-8"
             )
+            updater = (target / ".model-handoff/update.py").read_text(
+                encoding="utf-8"
+            )
         self.assertIn("project-specific | protocol-generic | unclear", feedback)
         self.assertIn("Never push an unreviewed target-project rule", playbook)
         self.assertIn("Milestone review versus specialized review", playbook)
@@ -58,6 +62,8 @@ class InstallerTests(unittest.TestCase):
         self.assertIn("name exactly /review-bugbot or /review-security", handoff)
         self.assertIn("High-risk coverage matrix", handoff)
         self.assertIn("Execution routing", plan)
+        self.assertIn("REPOSITORY_URL", updater)
+        self.assertIn("check=False", updater)
 
     def test_apply_never_overwrites_existing_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -68,6 +74,23 @@ class InstallerTests(unittest.TestCase):
             status = next(item for item in result["entries"] if item["path"] == "STATUS.md")
             self.assertEqual("differs", status["status"])
             self.assertEqual("user-owned\n", existing.read_text(encoding="utf-8"))
+
+    def test_apply_never_overwrites_existing_update_helper(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            existing = target / ".model-handoff/update.py"
+            existing.parent.mkdir()
+            existing.write_text("# project-pinned updater\n", encoding="utf-8")
+            result = install(target, apply=True)
+            updater = next(
+                item
+                for item in result["entries"]
+                if item["path"] == ".model-handoff/update.py"
+            )
+            self.assertEqual("differs", updater["status"])
+            self.assertEqual(
+                "# project-pinned updater\n", existing.read_text(encoding="utf-8")
+            )
 
     def test_repeat_install_reports_identical_files(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
