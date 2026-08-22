@@ -1,6 +1,7 @@
-Act as planner/reviewer. Read the project rules, MODEL_HANDOFF.md, STATUS.md,
-docs/IMPLEMENTATION_PLAN.md, the active milestone, latest report, Git state, and
-implementation diff. Independently verify material evidence. Return exactly one
-decision: ACCEPT_STAGE, REFINE, BLOCKED_DECISION, or COMPLETE. If work remains,
-update the handoff with bounded scope, acceptance evidence, stop conditions, and
-one exact first action; never merely say “continue”.
+Act as planner/reviewer. Run `python3 .model-handoff/handoff.py snapshot .` and use
+that bounded output as bootstrap context. Read only the exact required headings,
+then inspect the relevant diff and named evidence independently; do not preload
+completed history or full logs. Return exactly one decision: ACCEPT_STAGE,
+REFINE, BLOCKED_DECISION, or COMPLETE. If work remains, write a compact,
+delta-first handoff with exact evidence pointers, stop conditions, and one first
+action; run the handoff checker before returning.

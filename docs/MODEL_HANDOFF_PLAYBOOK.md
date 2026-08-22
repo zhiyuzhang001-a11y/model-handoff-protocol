@@ -17,6 +17,10 @@ The permanent rules are:
 project state. `docs/IMPLEMENTATION_PLAN.md` records durable objectives and
 milestones. Keep changing task state out of permanent rules.
 
+The installed `.model-handoff/handoff.py` helper checks the live contract and
+renders a bounded bootstrap snapshot. It does not decide what to do; it prevents
+the incoming role from starting with stale or unnecessarily broad context.
+
 ## Roles
 
 ### Planner/reviewer
@@ -34,6 +38,50 @@ or silently select a materially different architecture.
 
 Model names are routing hints, not authority. Any model can discover an issue
 outside its current role and hand it back instead of guessing.
+
+## Right-sized contracts
+
+Do not maximize planning detail. A useful contract freezes the outcome,
+invariants, acceptance evidence, authority boundary, stopping conditions, and
+first verifiable action. It does not prescribe every edit when those choices are
+local, reversible, and protected by named tests.
+
+Use more planning when failure is costly, requirements are ambiguous, architecture
+or public behavior may change, or evidence is expensive. Use a thinner contract
+for routine, reversible work in known files. The implementer may choose local
+mechanics inside the boundary and must return when a frozen assumption fails.
+
+Over-specification creates stale micro-steps, longer handoffs, duplicated
+reasoning, mechanical execution of bad assumptions, and a planner/reviewer
+bottleneck. Under-specification forces the implementer to invent goals or gates.
+Optimize for the smallest contract that makes unsafe guessing unnecessary.
+Record `Contract depth` as `thin`, `standard`, or `high-risk` so the incoming
+role knows whether detail is intentionally sparse or accidentally missing.
+
+## Staged context loading
+
+Incoming roles load context in three stages and stop as soon as the contract is
+safe to execute or review:
+
+1. **Bootstrap:** run `python3 .model-handoff/handoff.py snapshot .`. This yields
+   status, live contract, observed Git state, open risks, and evidence pointers
+   within a fixed character budget.
+2. **Required expansion:** open only each exact `path#heading` under `Must read
+   now`. Read the smallest region that establishes the frozen requirement.
+3. **Conditional expansion:** open a `Read on demand` pointer only when its named
+   trigger occurs, or when observed evidence materially conflicts with bootstrap.
+
+Do not preload the full implementation plan, completed milestone history, full
+reports, logs, or chat transcript. Detailed evidence remains in artifacts; the
+handoff records the result, path, and reason it matters. If required context
+cannot fit in the bootstrap budget, reduce duplication and add precise pointers
+instead of raising the budget by default.
+
+The helper enforces 9,000 characters for the live handoff, 3,000 for status,
+1,200 per handoff section, and 7,000 for the rendered bootstrap. These are hard
+character bounds rather than model-specific token estimates. Projects may fork
+the limits only after measuring a real reconstruction failure that precise
+pointers cannot solve.
 
 ## Source-of-truth order
 
@@ -59,11 +107,18 @@ The handoff packet cannot override a milestone. It must surface discrepancies.
   complete.
 - `IDLE`: no milestone is authorized; the packet states how work may resume.
 
+`PLAN_TO_EXECUTE` and `REVIEW_TO_EXECUTE` target `implementer`. All other states
+target `planner/reviewer`. The user can therefore use one generic incoming phrase;
+the checked state determines the role instead of relying on model identity.
+Only the planner/reviewer may originate plan/review-to-execute, `COMPLETE`, or
+`IDLE`; only the implementer may originate `EXECUTION_TO_REVIEW`.
+
 ## Required handoff packet
 
 Use `templates/MODEL_HANDOFF.md`. Every switch records:
 
-- stable ID, state, roles, milestone, branch/commit, and working-tree ownership;
+- protocol version, stable ID, roles, verified time, milestone, Git baseline, and
+  working-tree ownership;
 - one user-visible objective and explicit non-goals;
 - exact acceptance commands, thresholds, artifacts, and cleanup;
 - verified completed work that must not be repeated;
@@ -73,17 +128,25 @@ Use `templates/MODEL_HANDOFF.md`. Every switch records:
 - failed attempts and whether they changed state;
 - decisions, rejected alternatives, deviations, risks, and unknowns;
 - allowed autonomy, stop conditions, live resources, and requested response.
+- only the delta since the previous handoff, exact required/on-demand context
+  headings, evidence artifact paths, and content that is safe to skip.
 
 Write `none` when a field is inapplicable but omission would be ambiguous. Avoid
 “mostly done”, “seems fine”, “tests pass”, and “continue working”.
 
+`STATUS.md` owns the short project dashboard. `MODEL_HANDOFF.md` owns the transfer
+contract. Their active-milestone value and exact-next-action text must match;
+plans own durable scope and acceptance; reports own detailed evidence. Reference
+owned facts instead of copying them across files.
+
 ## Planner/reviewer to implementer
 
-1. Read rules, status, plan, current handoff, latest report, and Git state.
+1. Run the bootstrap snapshot and expand only its required context pointers.
 2. Convert the desired outcome into one milestone or bounded stage.
 3. Freeze the objective, non-goals, allowed changes, acceptance evidence, and
-   stop conditions. Resolve choices that would otherwise force guessing.
-4. Split work into independently verifiable units and identify the first action.
+   stop conditions. Resolve only choices whose deferral would force unsafe
+   guessing; leave reversible local mechanics to the implementer.
+4. Split risky or independently verifiable units and identify the first action.
 5. Record pre-existing changes and owned commands/processes.
 6. Set state to `PLAN_TO_EXECUTE` or `REVIEW_TO_EXECUTE` and request a precise
    implementation result.
@@ -91,6 +154,10 @@ Write `none` when a field is inapplicable but omission would be ambiguous. Avoid
 The contract is incomplete if the implementer must choose the architecture,
 define success, infer whether external writes are allowed, or discover which
 test suite is authoritative.
+
+The contract is too detailed if it duplicates source code, full reports, or
+step-by-step edits whose correctness can be decided locally and verified by the
+named gates.
 
 ## Implementer acceptance
 
@@ -103,6 +170,9 @@ Before editing, the implementer verifies:
 - pre-existing versus task-owned changes;
 - absence of material conflicts among plan, handoff, Git, and observed state.
 
+Start from the bootstrap. Do not expand optional context merely to become
+familiar with the whole project.
+
 If a material conflict exists, record it and switch to `BLOCKED_TO_DECIDE`.
 
 ## Implementer execution
@@ -110,12 +180,53 @@ If a material conflict exists, record it and switch to `BLOCKED_TO_DECIDE`.
 - Execute one verified unit at a time.
 - Update plan, status, report, and handoff when a verified result changes the next
   action or later feasibility.
+- Make reversible local implementation choices without requesting a new plan;
+  record only decisions that affect later work or review.
 - Do not rerun expensive completed evidence unless inputs changed or independent
   reproduction is required.
 - Preserve unknown dirty-worktree changes; never manufacture a clean state with a
   broad reset.
 - Keep one writer for overlapping files. Parallel work requires explicit,
   non-overlapping ownership.
+
+## Root-cause corrections and bounded autonomy
+
+Goals, public behavior, scope, acceptance gates, safety invariants, and stop
+conditions remain planner/user authority. The implementer has local discretion
+over reversible mechanics: it may refactor bounded code, replace a suggested
+implementation technique, and add adjacent negative tests without asking again.
+It may not weaken a gate, redefine success, or broaden the milestone.
+
+When review returns a behavioral defect, the handoff must include four things:
+
+1. the root invariant that the product must preserve;
+2. a minimal reproducible counterexample and exact expected result;
+3. at least one adjacent adversarial variant likely to defeat a case-specific fix;
+4. a known shallow or rejected approach when one has already failed.
+
+For a non-behavioral correction such as wording, formatting, or missing evidence,
+the handoff still names the violated requirement but may record correction
+variants as `not applicable` with a short reason. Do not invent adversarial cases
+that add no verification value.
+
+The implementer first converts the behavioral reproducer and adjacent variant
+into failing tests, then chooses the smallest mechanism that satisfies the
+invariant. For
+path, identity, concurrency, recovery, and other high-risk work, vary the relevant
+dimensions—not only input values, but also object identity, timing, ancestry,
+aliasing, interruption point, and before/during/after replacement. If the
+suggested mechanism cannot satisfy the invariant, choose a safer in-scope method;
+escalate only when that requires a public, architectural, or scope decision.
+
+Local discretion remains inside the handoff's allowed paths and actions. A new dependency,
+public interface or schema change, migration, external write, or edit
+outside that boundary requires explicit authority even when it appears to be the
+cleanest implementation.
+
+A correction is not reviewable merely because the named reproducer passes. It
+must pass the adjacent variants, prior regression suite, required real workflow,
+and evidence/cleanup gates. Record which root invariant was proven and which
+variant dimensions were exercised.
 
 ## Implementer to planner/reviewer
 
@@ -132,6 +243,11 @@ continuing requires judgment outside the contract. Include:
 
 Do not ask another model to “take a look” without naming the decision.
 
+For `EXECUTION_TO_REVIEW`, the bootstrap automatically adds changes/repository
+state, commands/results, and decisions/rationale. The reviewer receives the
+review index and measured results, not full logs; it then opens the named diff and
+evidence artifacts independently.
+
 ## Planner/reviewer decision
 
 The reviewer inspects the relevant diff and material evidence rather than
@@ -146,11 +262,19 @@ trusting the packet. It chooses one outcome:
 If work returns to implementation, use `REVIEW_TO_EXECUTE`. For completion, leave
 the packet `COMPLETE` or `IDLE` and name the exact resumption condition.
 
+For behavioral `REFINE`, avoid prescribing only a line edit. State the violated
+invariant, reproducer, adjacent variant, rejected shallow fix, and the freedom the
+implementer retains to select a stronger bounded mechanism. For non-behavioral
+`REFINE`, name the exact unmet requirement and evidence needed without forcing
+irrelevant adversarial variants.
+
 ## Switching discipline
 
 - Switch at a verified boundary, not halfway through an edit or destructive step.
 - Before switching, wait for or terminate owned commands, record terminal/session
   IDs and external run URLs, and list processes the next role must monitor.
+- Run `python3 .model-handoff/handoff.py check .`; do not switch with a stale Git
+  baseline, mismatched next action, missing section, or oversized packet.
 - Never leave an unrecorded approval prompt or interactive command waiting.
 - If context is compacted, repeat the incoming acceptance procedure.
 - If a new conversation starts, use the full incoming prompt from `prompts/`.
@@ -159,14 +283,13 @@ the packet `COMPLETE` or `IDLE` and name the exact resumption condition.
 
 ## User procedure
 
-1. Tell the outgoing model to prepare the packet with
-   `prompts/outgoing-handoff.txt`.
-2. Wait until it reports a recoverable state and stops.
+1. Tell the outgoing model: `我要切换模型。请按项目规则完成并检查交接，然后停止。`
+2. Wait until the helper check passes and it reports a recoverable state.
 3. Change the model.
-4. Paste `prompts/incoming-implementer.txt` or
-   `prompts/incoming-reviewer.txt`.
-5. Require the incoming role to report a conflict before editing if records do
-   not agree.
+4. Tell the incoming model: `请按项目交接继续。` It reads `To role` from the
+   bootstrap. Use a role-specific prompt only to override the recorded route.
+5. Require the incoming role to begin from the bounded snapshot and report a
+   conflict before editing if records do not agree.
 
 ## Privacy before publishing a real packet
 
@@ -180,9 +303,26 @@ Review live handoffs for:
 
 Publish templates and invented examples, not an unreviewed live handoff.
 
+## Local continuous improvement
+
+No download, background updater, or network service is required after
+installation. The installed rules, templates, helper, and feedback log are local.
+
+Do not record every successful switch. When a switch produces measurable
+friction—missing required context, repeated work, a stale or broken pointer, wrong
+role routing, an oversized packet, or an unverifiable claim—append one compact
+entry to `.model-handoff/FEEDBACK.md`. That file is never bootstrap context.
+
+After three completed switches, or immediately after one severe failure, the
+planner/reviewer may inspect open feedback and propose the smallest protocol
+change. Change the reusable local source repository first, add a regression test,
+run validation, then preview installation into the real project. Manually merge
+only `differs` files; never auto-overwrite project-specific rules or live state.
+Mark the feedback resolved only after a later switch proves the improvement.
+
 ## Reuse in another project
 
-Run the installer or copy the two rules, playbook, and blank templates. Customize
+Run the installer or copy the two rules, helper, playbook, and blank templates. Customize
 only canonical plan/status/report paths and the project's approval boundaries.
 Keep the handoff state machine, required fields, source-of-truth order, and
 bidirectional review loop stable.

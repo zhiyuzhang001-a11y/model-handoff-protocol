@@ -2,7 +2,7 @@
 
 - Date: `<YYYY-MM-DD>`
 - State: `<MILESTONE / STAGE / ACTIVE | COMPLETE | BLOCKED | IDLE>`
-- Active milestone: `<path, or none>`
+- Active milestone: `<exact text copied from MODEL_HANDOFF.md, or none>`
 - Current handoff: `MODEL_HANDOFF.md`
 
 ## Completed
@@ -15,4 +15,4 @@
 
 ## Next action
 
-`<One exact action, or the condition required to resume from IDLE.>`
+`<Exact text copied from MODEL_HANDOFF.md Exact next action.>`

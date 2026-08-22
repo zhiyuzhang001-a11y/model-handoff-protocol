@@ -8,19 +8,33 @@ alwaysApply: true
 - Roles are `planner/reviewer` and `implementer`; model names do not grant extra
   authority. Route ambiguity and judgment to planning/review and bounded work to
   implementation.
-- Before acting, read `STATUS.md`, `MODEL_HANDOFF.md`,
-  `docs/IMPLEMENTATION_PLAN.md`, the active milestone plan, and its latest report;
-  inspect Git state and verify material handoff claims.
+- Bootstrap first with `python3 .model-handoff/handoff.py snapshot .`; if the
+  helper is unavailable, read `STATUS.md`, `MODEL_HANDOFF.md`, and Git state.
+  Expand only the exact plan/report sections named as required context.
 - Do not edit until you can state the objective, frozen scope, completed evidence,
   remaining work, stop conditions, and one exact next action.
 - The planner/reviewer hands off objective, non-goals, allowed files/actions,
   ordered steps, acceptance tests, evidence format, authority boundary, stop
   conditions, and the first exact implementation action.
+- Behavioral-defect handbacks state the root invariant, reproducer, adjacent
+  variant, and rejected shallow fixes; non-behavioral corrections may explain why variants are inapplicable.
+- Objectives, scope, gates, and invariants are frozen; implementation mechanics
+  are not. Inside that boundary, the implementer may refactor locally, replace a
+  proposed mechanism, and add adjacent tests when this better satisfies the gate,
+  but may not leave allowed paths or add dependencies, public/API/schema changes,
+  migrations, or external writes without explicit authority.
+- For path, identity, concurrency, recovery, or security work, passing only the
+  reported reproducer is insufficient; verify the root invariant across nearby
+  value-, identity-, timing-, and boundary-changing variants that apply.
 - The implementer hands back exact changes, files, commands/results, failed
   attempts, deviations, repository/process state, risks, and the precise review
   or decision requested.
 - Update `MODEL_HANDOFF.md` at every role/model switch and verified stage boundary.
   Dynamic state belongs there and in `STATUS.md`, never in this rule.
+- Keep the packet compact and delta-first. Point to exact evidence paths/sections;
+  do not paste full plans, diffs, logs, or completed history into the packet.
+- `STATUS.md` owns the project dashboard; the handoff owns the transfer contract.
+  Their active milestone and exact next action must agree verbatim.
 - Never say “tests pass” without commands and counts or artifact paths. Never
   report completion while required gates, cleanup, or documentation remain.
 - Do not reinterpret goals, lower gates, repeat completed work, overwrite unknown
@@ -28,5 +42,8 @@ alwaysApply: true
   observed evidence.
 - One role writes at a time. Before switching, finish or record owned commands,
   processes, external runs, and temporary state; leave a recoverable repository.
-- Follow `docs/MODEL_HANDOFF_PLAYBOOK.md` for schema, prompts, conflict handling,
-  and examples.
+- Before switching, run `python3 .model-handoff/handoff.py check .`. Follow the
+  playbook for schema, staged context loading, conflicts, and examples.
+- If a switch causes measurable friction, append one compact entry to
+  `.model-handoff/FEEDBACK.md`; never load it during normal bootstrap or change
+  stable rules in the middle of the active task.

@@ -1,11 +1,18 @@
 # Example: planner to implementer
 
+This is an abbreviated teaching example, not a valid live packet. Start from
+`templates/MODEL_HANDOFF.md` and complete every required field.
+
+- Protocol version: `0.2`
 - Handoff ID: `2026-01-15-m4-cache-key`
 - State: `PLAN_TO_EXECUTE`
 - From role: `planner/reviewer`
 - To role: `implementer`
+- Contract depth: `standard`
+- Last verified: `2026-01-15T09:30:00Z`
 - Active milestone: `M4 Stage 1`
-- Branch/commit: `main` at `<CURRENT_HEAD>`
+- Base branch: `main`
+- Base HEAD: `<CURRENT_HEAD>`
 - Working tree: clean
 
 ## Objective and user-visible outcome
@@ -39,6 +46,15 @@ returns without restarting the provider.
 
 Inspect the service query entry point and cache lifecycle, then propose the
 smallest edit region. Do not edit before confirming timeout/error behavior.
+
+## Context delta and evidence pointers
+
+- Changed since previous handoff: M4 Stage 1 is now approved for execution.
+- Must read now: `docs/IMPLEMENTATION_PLAN.md#M4 Stage 1` for frozen cache gates.
+- Read on demand: `reports/M4_PROFILE.md#Provider startup` only if the baseline
+  assumption conflicts with observed code.
+- Evidence artifacts: `reports/M4_BASELINE.md`.
+- Safe to skip: completed M0–M3 reports and full profiling logs.
 
 ## Authority and stop conditions
 

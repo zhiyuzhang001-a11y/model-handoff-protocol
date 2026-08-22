@@ -1,10 +1,24 @@
 # Example: blocked decision
 
+This is an abbreviated teaching example, not a valid live packet. Start from
+`templates/MODEL_HANDOFF.md` and complete every required field.
+
+- Protocol version: `0.2`
 - Handoff ID: `2026-01-16-m5-runtime-choice`
 - State: `BLOCKED_TO_DECIDE`
 - From role: `implementer`
 - To role: `planner/reviewer`
+- Contract depth: `high-risk`
+- Last verified: `2026-01-16T15:00:00Z`
 - Active milestone: `M5 Stage 0`
+
+## Context delta and evidence pointers
+
+- Changed since previous handoff: profiling invalidated the approved approach.
+- Must read now: `reports/M5_PROFILE.md#Startup attribution`.
+- Read on demand: architecture alternatives only after choosing whether to expand scope.
+- Evidence artifacts: `reports/M5_PROFILE.md`.
+- Safe to skip: completed milestones and raw profiler output.
 
 ## Objective and user-visible outcome
 

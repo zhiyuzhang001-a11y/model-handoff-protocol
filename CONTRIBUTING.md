@@ -17,3 +17,7 @@ always-applied prompts. Never commit a real private handoff as an example.
 Changes to required packet fields or state transitions should update the rule,
 playbook, template, examples, installer tests, Chinese guide, and changelog as
 applicable.
+
+Changes to bootstrap content or compactness limits must add checker tests for both
+implementation and review directions. Preserve the rule that evidence pointers
+are data: the helper must never execute commands found in a handoff.

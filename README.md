@@ -18,6 +18,8 @@ rationale. This protocol makes the repository the operational memory:
 - status and milestone plans define project truth;
 - Git state and reproducible commands verify claims;
 - every handoff names one exact next action and one requested response.
+- incoming models start from a checked, bounded bootstrap and expand only exact
+  context pointers, so project history does not grow every model switch.
 
 ## Workflow
 
@@ -34,6 +36,11 @@ ACCEPT_STAGE | REFINE | BLOCKED_DECISION | COMPLETE
                   ↓
 repeat when needed
 ```
+
+The return direction is equally strict: after bounded execution, the implementer
+records the diff base, owned versus pre-existing changes, command/exit/count
+evidence, failures, deviations, risks, cleanup, and one named review decision.
+The planner/reviewer independently inspects the referenced diff and evidence.
 
 ## Quick start
 
@@ -58,7 +65,13 @@ MODEL_HANDOFF.md
 STATUS.md
 docs/IMPLEMENTATION_PLAN.md
 docs/MODEL_HANDOFF_PLAYBOOK.md
+.model-handoff/handoff.py
+.model-handoff/FEEDBACK.md
 ```
+
+For existing destinations, preview reports `identical`, `differs`, or `conflict`
+without changing them. Merge `differs` manually so project-specific rules and
+live state are preserved during protocol upgrades.
 
 You can also copy these files manually. Customize only project-specific paths,
 approval boundaries, and the live handoff content; keep the bidirectional schema
@@ -66,31 +79,69 @@ stable.
 
 ## What the user says when switching
 
+The shortest safe interaction is:
+
+```text
+Before: I am switching models. Complete and check the project handoff, then stop.
+After: Continue from the project handoff.
+```
+
+The incoming model reads `To role` from the bootstrap. Role-specific prompts are
+only needed when the user intentionally overrides the recorded route.
+
 Before changing models:
 
 ```text
-Prepare a complete handoff using the project model-handoff rule. Update the live
-handoff, status, active plan, and report as needed. Finish or record owned commands
-and processes, leave a recoverable Git state, then stop.
+Prepare a compact, delta-first handoff using the project model-handoff rule.
+Update owned records, point to exact evidence, run the handoff check, leave a
+recoverable Git state, then stop.
+```
+
+The outgoing role finishes by checking the live packet:
+
+```bash
+python3 .model-handoff/handoff.py check .
+```
+
+The incoming role starts with a compact snapshot instead of preloading every
+plan and report:
+
+```bash
+python3 .model-handoff/handoff.py snapshot .
 ```
 
 After switching to an implementer:
 
 ```text
-Act as implementer. Read the project rules, MODEL_HANDOFF.md, STATUS.md,
-IMPLEMENTATION_PLAN.md, the active milestone, latest report, and Git state.
-Verify the contract before editing, then execute only the exact next action.
+Act as implementer. Run the handoff snapshot, read only its exact required
+context headings, verify the contract, then execute the exact next action.
 ```
 
 After switching to a planner/reviewer:
 
 ```text
-Act as planner/reviewer. Read the project rules and handoff, inspect Git, diff,
-and evidence independently, then return ACCEPT_STAGE, REFINE,
-BLOCKED_DECISION, or COMPLETE. Write a bounded return handoff if work remains.
+Act as planner/reviewer. Run the handoff snapshot, then inspect the named Git diff
+and evidence independently. Return ACCEPT_STAGE, REFINE, BLOCKED_DECISION, or
+COMPLETE, and write a bounded return handoff if work remains.
 ```
 
 Copy-ready versions live in [`prompts/`](prompts/).
+
+## Planning depth
+
+The protocol does not require a powerful model to prescribe every code edit. It
+should freeze outcomes, invariants, acceptance, authority, stop conditions, and
+the first verifiable action. A bounded implementer may choose reversible local
+mechanics protected by named tests. Add planning detail only as ambiguity, risk,
+irreversibility, or evidence cost increases.
+
+## Local improvement loop
+
+The installed protocol is fully local and needs no recurring download. Log only
+measurable switch friction in `.model-handoff/FEEDBACK.md`, outside bootstrap
+context. After three completed switches or one severe failure, review open items,
+change this local source repository with a regression test, and use installer
+preview to merge `differs` safely into the working project.
 
 ## Core files
 
@@ -98,7 +149,11 @@ Copy-ready versions live in [`prompts/`](prompts/).
 - [Generic project execution rule](.cursor/rules/project-execution.mdc)
 - [Detailed playbook](docs/MODEL_HANDOFF_PLAYBOOK.md)
 - [Live handoff template](templates/MODEL_HANDOFF.md)
+- [Live handoff checker and compact snapshot](scripts/handoff.py)
 - [Examples](examples/)
+
+Examples are intentionally abbreviated to teach decision shapes. Start a real
+handoff from the complete template, not from an example.
 
 ## Safety and privacy
 

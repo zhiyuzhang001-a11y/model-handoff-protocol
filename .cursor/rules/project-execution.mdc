@@ -5,14 +5,16 @@ alwaysApply: true
 
 # Evidence-First Project Execution
 
-- Before choosing work, read `STATUS.md`, `MODEL_HANDOFF.md`,
-  `docs/IMPLEMENTATION_PLAN.md`, the active milestone plan, and its latest report.
+- Before choosing work, load the compact handoff bootstrap. Read a long-term plan,
+  milestone, report, or log only when the handoff points to its exact relevant
+  section or a material conflict requires expansion.
 - Treat user instructions, repository files, Git state, and reproducible command
   output as truth; conversation memory and model summaries are claims to verify.
 - Within an approved active milestone, execute the single recorded next task. If
   no milestone is active, do not invent one.
 - After each verified unit, record what completed, what remains or failed, its
-  effect on later work, and one exact next task in the plan, status, and handoff.
+  effect on later work, and one exact next task. Store detail in the active plan
+  or report; keep status and handoff summaries bounded.
 - Implementation without the contract's tests or evidence is not complete.
 - Continue automatically only inside the recorded scope and authority boundary.
 - Stop for material goal, architecture, acceptance, privacy, security, license,

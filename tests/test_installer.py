@@ -24,6 +24,7 @@ class InstallerTests(unittest.TestCase):
             self.assertTrue(all(item["status"] == "created" for item in result["entries"]))
             for _, destination in INSTALLS:
                 self.assertTrue((target / destination).is_file())
+            self.assertTrue((target / ".model-handoff/handoff.py").is_file())
 
     def test_apply_never_overwrites_existing_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -32,8 +33,23 @@ class InstallerTests(unittest.TestCase):
             existing.write_text("user-owned\n", encoding="utf-8")
             result = install(target, apply=True)
             status = next(item for item in result["entries"] if item["path"] == "STATUS.md")
-            self.assertEqual("exists", status["status"])
+            self.assertEqual("differs", status["status"])
             self.assertEqual("user-owned\n", existing.read_text(encoding="utf-8"))
+
+    def test_repeat_install_reports_identical_files(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            install(target, apply=True)
+            result = install(target, apply=True)
+            self.assertTrue(all(item["status"] == "identical" for item in result["entries"]))
+
+    def test_existing_directory_at_destination_is_a_conflict(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            (target / "STATUS.md").mkdir()
+            result = install(target)
+            status = next(item for item in result["entries"] if item["path"] == "STATUS.md")
+            self.assertEqual("conflict", status["status"])
 
     def test_rejects_missing_target(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

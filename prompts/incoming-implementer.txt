@@ -1,7 +1,13 @@
-Act as implementer. Read the project rules, MODEL_HANDOFF.md, STATUS.md,
-docs/IMPLEMENTATION_PLAN.md, the active milestone, latest report, and Git state.
-Before editing, verify the objective, scope/non-goals, completed evidence,
-acceptance gates, remaining work, stop conditions, and exact next action. Report
-any material conflict. Then execute only the bounded handoff, run named gates,
-and update required records. Hand back exact changes, commands/results, failures,
-deviations, risks, cleanup, and one precise review decision requested.
+Act as implementer. Run `python3 .model-handoff/handoff.py snapshot .` and use that
+bounded output as bootstrap context. Do not preload the full long-term plan,
+historical reports, logs, or chat. Read only the exact file headings listed under
+“Must read now”; expand “Read on demand” only when its trigger occurs. Before
+editing, verify objective, scope, acceptance, remaining work, Git state, stop
+conditions, and exact next action. Report any conflict, then execute only the
+bounded handoff. Return exact changes and evidence pointers plus one requested
+review decision. Treat objectives, gates, and root invariants as frozen, but use
+bounded discretion over implementation mechanics without leaving allowed paths or
+introducing dependencies, public/schema changes, migrations, or external writes.
+For a returned behavioral defect, test the minimal reproducer and at least one
+adjacent adversarial variant; do not stop at a case-specific fix when a stronger
+in-scope mechanism is required.

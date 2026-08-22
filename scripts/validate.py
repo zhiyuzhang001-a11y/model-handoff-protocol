@@ -9,28 +9,15 @@ from pathlib import Path
 
 try:
     from .install import INSTALLS, ROOT
+    from .handoff import PROTOCOL_VERSION, REQUIRED_METADATA, REQUIRED_SECTIONS, parse_markdown
 except ImportError:  # Direct script execution.
     from install import INSTALLS, ROOT
+    from handoff import PROTOCOL_VERSION, REQUIRED_METADATA, REQUIRED_SECTIONS, parse_markdown
 
 
 RULES = (
     ROOT / ".cursor/rules/model-handoff.mdc",
     ROOT / ".cursor/rules/project-execution.mdc",
-)
-REQUIRED_HANDOFF_HEADINGS = (
-    "Objective and user-visible outcome",
-    "Frozen scope and non-goals",
-    "Acceptance and required evidence",
-    "Verified completed work",
-    "Remaining ordered work",
-    "Exact next action",
-    "Changes and repository state",
-    "Commands and results",
-    "Decisions and rationale",
-    "Risks, deviations, and unknowns",
-    "Authority and stop conditions",
-    "Owned live resources",
-    "Requested response from the next role",
 )
 PRIVATE_PATH_PATTERNS = (
     re.compile(r"/Users/[A-Za-z0-9._-]+/"),
@@ -65,10 +52,56 @@ def validate() -> list[str]:
         if len(lines) > 50:
             errors.append(f"rule exceeds 50 lines: {rule.relative_to(ROOT)} ({len(lines)})")
 
-    handoff = (ROOT / "templates/MODEL_HANDOFF.md").read_text(encoding="utf-8")
-    for heading in REQUIRED_HANDOFF_HEADINGS:
-        if f"## {heading}" not in handoff:
+    handoff_text = (ROOT / "templates/MODEL_HANDOFF.md").read_text(encoding="utf-8")
+    handoff = parse_markdown(handoff_text)
+    for heading in REQUIRED_SECTIONS:
+        if heading not in handoff.sections:
             errors.append(f"handoff template missing heading: {heading}")
+    for key in REQUIRED_METADATA:
+        if key not in handoff.metadata:
+            errors.append(f"handoff template missing metadata: {key}")
+    if handoff.metadata.get("Protocol version") != PROTOCOL_VERSION:
+        errors.append("handoff template protocol version is not current")
+
+    prompt_requirements = {
+        "prompts/outgoing-handoff.txt": "handoff.py check",
+        "prompts/incoming-implementer.txt": "handoff.py snapshot",
+        "prompts/incoming-reviewer.txt": "handoff.py snapshot",
+        "prompts/switch-out.txt": "检查交接",
+        "prompts/switch-in.txt": "bootstrap",
+    }
+    for relative, required in prompt_requirements.items():
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        if required not in text:
+            errors.append(f"prompt missing compact workflow command: {relative}")
+
+    policy_requirements = {
+        ".cursor/rules/model-handoff.mdc": (
+            "root invariant",
+            "non-behavioral corrections",
+            "external writes without explicit authority",
+        ),
+        "docs/MODEL_HANDOFF_PLAYBOOK.md": (
+            "Root-cause corrections and bounded autonomy", "Do not invent adversarial cases",
+            "A new dependency",
+        ),
+        "templates/MODEL_HANDOFF.md": (
+            "Root invariant:", "not applicable with reason", "no new dependency",
+        ),
+        "prompts/incoming-implementer.txt": (
+            "root invariants", "returned behavioral defect", "introducing dependencies",
+        ),
+    }
+    for relative, required_phrases in policy_requirements.items():
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        for phrase in required_phrases:
+            if phrase not in text:
+                errors.append(f"root-cause autonomy policy missing from {relative}: {phrase}")
+
+    for example in sorted((ROOT / "examples").glob("*.md")):
+        text = example.read_text(encoding="utf-8")
+        if "abbreviated teaching example, not a valid live packet" not in text:
+            errors.append(f"example missing non-copyable warning: {example.relative_to(ROOT)}")
 
     for source, _ in INSTALLS:
         if not (ROOT / source).is_file():

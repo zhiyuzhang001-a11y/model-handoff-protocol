@@ -18,6 +18,8 @@ INSTALLS = (
     (Path("templates/STATUS.md"), Path("STATUS.md")),
     (Path("templates/IMPLEMENTATION_PLAN.md"), Path("docs/IMPLEMENTATION_PLAN.md")),
     (Path("docs/MODEL_HANDOFF_PLAYBOOK.md"), Path("docs/MODEL_HANDOFF_PLAYBOOK.md")),
+    (Path("scripts/handoff.py"), Path(".model-handoff/handoff.py")),
+    (Path("templates/HANDOFF_FEEDBACK.md"), Path(".model-handoff/FEEDBACK.md")),
 )
 
 
@@ -65,7 +67,13 @@ def install(target: Path, *, apply: bool = False) -> dict[str, Any]:
         source = ROOT / source_relative
         destination = base / destination_relative
         if destination.exists():
-            entries.append({"path": destination_relative.as_posix(), "status": "exists"})
+            if not destination.is_file():
+                status = "conflict"
+            elif destination.read_bytes() == source.read_bytes():
+                status = "identical"
+            else:
+                status = "differs"
+            entries.append({"path": destination_relative.as_posix(), "status": status})
             continue
         if not apply:
             entries.append({"path": destination_relative.as_posix(), "status": "would_create"})

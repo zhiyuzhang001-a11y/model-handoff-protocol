@@ -1,12 +1,16 @@
 # Current model handoff
 
+- Protocol version: `0.2`
 - Handoff ID: `<date-or-sequence>-<short-purpose>`
 - State: `PLAN_TO_EXECUTE | EXECUTION_TO_REVIEW | REVIEW_TO_EXECUTE | BLOCKED_TO_DECIDE | COMPLETE | IDLE`
 - From role: `planner/reviewer | implementer`
 - To role: `planner/reviewer | implementer`
-- Active milestone: `<ID and stage, or none>`
-- Branch/commit: `<branch and HEAD>`
-- Working tree: `<clean, or separate task-owned and pre-existing paths>`
+- Contract depth: `thin | standard | high-risk`
+- Last verified: `<YYYY-MM-DDTHH:MM:SSZ>`
+- Active milestone: `<relative path#exact heading, or none>`
+- Base branch: `<branch name or detached>`
+- Base HEAD: `<full or unambiguous short commit hash>`
+- Working tree: `<clean | dirty>`
 
 ## Objective and user-visible outcome
 
@@ -20,6 +24,8 @@
 ## Acceptance and required evidence
 
 - `<Exact test, dataset, threshold, artifact, cleanup, or documentation gate>`
+- Root invariant: `<required for REVIEW_TO_EXECUTE; otherwise invariant or none>`
+- Correction variants: `<behavioral reproducer plus adjacent case; for a non-behavioral correction, not applicable with reason; otherwise none>`
 
 ## Verified completed work
 
@@ -32,20 +38,33 @@
 
 ## Exact next action
 
-`<One command, inspection, edit, or decision with target and expected result.>`
+`<Exact text copied to STATUS.md Next action. One command, inspection, edit, or decision.>`
+
+## Context delta and evidence pointers
+
+- Changed since previous handoff: `<only new facts and decisions>`
+- Must read now: `<relative path#exact heading and why, or none>`
+- Read on demand: `<path#heading and triggering condition, or none>`
+- Evidence artifacts: `<paths, test reports, or commits; do not paste full output>`
+- Safe to skip: `<completed history or unrelated areas>`
 
 ## Changes and repository state
 
-- `<Files, commits, diffs, generated assets, and pre-existing changes>`
+- Diff base: `<commit or comparison point>`
+- Task-owned changes: `<files, commits, diffs, and generated assets>`
+- Pre-existing changes: `<paths not owned by this task, or none>`
 
 ## Commands and results
 
 - Command: `<exact command>`
 - Result: `<exit status, counts, duration, and artifact path>`
+- Not run: `<required or useful gate not run, with reason, or none>`
 
 ## Decisions and rationale
 
 - `<Chosen and rejected alternatives; mark frozen decisions>`
+- Local implementation discretion: `<mechanics/refactors/tests allowed within named paths; no new dependency, public/API/schema change, migration, or external write unless authorized>`
+- Rejected shallow fix: `<known case-specific approach not to repeat, or none>`
 
 ## Risks, deviations, and unknowns
 
@@ -53,7 +72,7 @@
 
 ## Authority and stop conditions
 
-- Continue automatically: `<in-scope actions>`
+- Continue automatically: `<in-scope actions, including bounded refactors and adjacent tests>`
 - Stop and escalate: `<specific conditions>`
 
 ## Owned live resources
@@ -62,4 +81,5 @@
 
 ## Requested response from the next role
 
-`<Implement, review, choose, diagnose, approve, or close—with one precise result.>`
+`<Implement, review, choose, diagnose, approve, or close—with one precise result
+such as ACCEPT_STAGE_1 or a named defect plus acceptance delta.>`

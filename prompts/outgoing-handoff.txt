@@ -1,8 +1,12 @@
 I am about to switch models or roles. Stop new implementation work and prepare a
-complete handoff under the project model-handoff rule. Update MODEL_HANDOFF.md,
-STATUS.md, the active milestone plan, and its report when state changed. Record
-the objective, frozen scope, acceptance, completed and remaining work, one exact
-next action, files/Git state, commands/results, failures, decisions, risks, stop
-conditions, live resources, and the precise response requested from the next
-role. Finish or record owned commands and processes, leave a recoverable state,
-then stop.
+compact, delta-first handoff under the project model-handoff rule. Update
+MODEL_HANDOFF.md and STATUS.md; update the active plan/report only when their
+owned facts changed. Point to exact file headings and evidence artifacts instead
+of copying full plans, diffs, logs, or history. Make the active milestone and
+exact next action identical in status and handoff. Record Git baseline, dirty-path
+ownership, risks, stop conditions, live resources, and one requested response.
+For execution-to-review, include diff base, task-owned versus pre-existing paths,
+every gate's command/exit/count/artifact, unrun gates with reasons, failures and
+deviations, then request one named review decision. Do not claim acceptance.
+Finish or record owned work, run `python3 .model-handoff/handoff.py check .`, fix
+all errors, leave a recoverable state, then stop.
