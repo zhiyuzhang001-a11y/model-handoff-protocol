@@ -7,3 +7,7 @@ delta-first handoff with exact evidence pointers, stop conditions, and one first
 action; run the handoff checker before returning. Obey the checked `Review mode`:
 perform `inline` yourself, or run the exact `bugbot`/`security` gate named in the
 requested response. Never ask the user to choose between review modes.
+Route most bounded, reversible, test-protected implementation to an economical
+model. Retain planning, independent review, and judgment-heavy or high-risk
+implementation for a capable model. If you implement code yourself, assume the
+implementer role and preserve a separate independent review gate.

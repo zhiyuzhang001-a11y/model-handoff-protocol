@@ -1,10 +1,11 @@
 # Current model handoff
 
-- Protocol version: `0.3`
+- Protocol version: `0.4`
 - Handoff ID: `<date-or-sequence>-<short-purpose>`
 - State: `PLAN_TO_EXECUTE | EXECUTION_TO_REVIEW | REVIEW_TO_EXECUTE | BLOCKED_TO_DECIDE | COMPLETE | IDLE`
 - From role: `planner/reviewer | implementer`
 - To role: `planner/reviewer | implementer`
+- Recommended capability: `economical | capable`
 - Review mode: `inline | bugbot | security | none`
 - Contract depth: `thin | standard | high-risk`
 - Last verified: `<YYYY-MM-DDTHH:MM:SSZ>`
@@ -27,6 +28,7 @@
 - `<Exact test, dataset, threshold, artifact, cleanup, or documentation gate>`
 - Root invariant: `<required for REVIEW_TO_EXECUTE; otherwise invariant or none>`
 - Correction variants: `<behavioral reproducer plus adjacent case; for a non-behavioral correction, not applicable with reason; otherwise none>`
+- High-risk coverage matrix: `<all applicable dimensions, omitted reasons, and deterministic hook/barrier; or not applicable>`
 
 ## Verified completed work
 

@@ -3,12 +3,13 @@
 This is an abbreviated teaching example, not a valid live packet. Start from
 `templates/MODEL_HANDOFF.md` and complete every required field.
 
-- Protocol version: `0.3`
+- Protocol version: `0.4`
 - Review mode: `none`
 - Handoff ID: `2026-01-20-m4-complete`
 - State: `COMPLETE`
 - From role: `planner/reviewer`
 - To role: `planner/reviewer`
+- Recommended capability: `capable`
 - Contract depth: `thin`
 - Last verified: `2026-01-20T12:00:00Z`
 - Active milestone: `M4 complete`

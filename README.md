@@ -4,9 +4,10 @@ An evidence-first, bidirectional handoff protocol for switching between planning
 implementation, and review models without treating chat history as durable
 project state.
 
-The protocol is model-agnostic. A frontier model may plan and review while a
-cost-efficient model implements bounded work, but roles—not model names—define
-authority.
+The protocol is model-agnostic. By default, a cost-efficient model performs most
+bounded implementation, while a capable model plans, independently reviews, and
+also implements the smaller set of difficult or high-risk units. Roles—not model
+names—still define authority.
 
 ## Why this exists
 
@@ -96,9 +97,16 @@ incoming model never asks the user to choose Bugbot or Security Review. Prefer t
 generic incoming phrase above; a bare `review` may route to an optional review
 skill before the protocol packet is read.
 
-When upgrading from protocol 0.2, merge the installed rule, playbook, template,
-and checker together. Then set the live packet to protocol 0.3 and add `Review
-mode`. The new checker rejects partial upgrades instead of guessing a route.
+Each packet also declares `Recommended capability: economical | capable`, so the
+outgoing model tells the user which tier to select. A planner/reviewer handoff
+must recommend `capable`; an implementer handoff selects `economical` for most
+bounded work and `capable` for judgment-heavy work. The checker requires
+`capable` plus an explicit coverage matrix for every `high-risk` contract.
+
+When upgrading from protocol 0.3 or earlier, merge the installed rule, playbook,
+template, and checker together. Then set the live packet to protocol 0.4 and add
+`Recommended capability`; protocol 0.2 packets must also add `Review mode`. The
+new checker rejects partial upgrades instead of guessing a route.
 
 Before changing models:
 
@@ -140,11 +148,19 @@ Copy-ready versions live in [`prompts/`](prompts/).
 
 ## Planning depth
 
-The protocol does not require a powerful model to prescribe every code edit. It
-should freeze outcomes, invariants, acceptance, authority, stop conditions, and
-the first verifiable action. A bounded implementer may choose reversible local
-mechanics protected by named tests. Add planning detail only as ambiguity, risk,
-irreversibility, or evidence cost increases.
+The default is to give economical models most simple, bounded, reversible, and
+test-protected work. Capable models freeze outcomes, invariants, acceptance,
+authority, stop conditions, and the first verifiable action; independently review
+the result; and implement judgment-heavy or high-risk code when that is the safer
+allocation. Any model writing code assumes the implementer role. High-risk work
+written by a capable model should still receive an independent capable review
+when practical.
+
+For high-risk behavioral corrections, cover every applicable value, identity,
+path, ordering, observation/publication, replacement, failure, and interruption
+dimension with deterministic tests. A second post-fix failure of the same
+invariant returns to high-risk planning instead of triggering another narrow
+patch.
 
 ## Local improvement loop
 

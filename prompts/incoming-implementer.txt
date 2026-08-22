@@ -10,4 +10,6 @@ bounded discretion over implementation mechanics without leaving allowed paths o
 introducing dependencies, public/schema changes, migrations, or external writes.
 For a returned behavioral defect, test the minimal reproducer and at least one
 adjacent adversarial variant; do not stop at a case-specific fix when a stronger
-in-scope mechanism is required.
+in-scope mechanism is required. For high-risk work, cover every applicable
+invariant-matrix dimension with deterministic hooks or barriers. A second post-fix failure
+of the same invariant stops implementation and returns for high-risk replanning.

@@ -21,6 +21,16 @@
 - Add protocol 0.3 `Review mode` routing so inline milestone review and optional
   Bugbot/Security gates are explicit, checker-enforced, and never require a user
   choice after switching.
+- Define capability-aware routing: economical models perform most bounded work;
+  capable models plan, independently review, and implement judgment-heavy or
+  high-risk units without gaining broader authority.
+- Require complete applicable invariant matrices and deterministic timing for
+  high-risk corrections; a second post-fix failure returns to high-risk planning
+  instead of receiving another case-specific patch.
+- Add protocol 0.4 `Recommended capability` routing so the outgoing role tells
+  the user whether the next implementer should be economical or capable; all
+  planner/reviewer and high-risk handoffs require a capable model, and high-risk
+  packets must carry a reasoned coverage matrix.
 
 ## 0.1.0 — 2026-08-21
 

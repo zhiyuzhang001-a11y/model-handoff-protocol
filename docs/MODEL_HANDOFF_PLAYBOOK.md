@@ -39,6 +39,23 @@ or silently select a materially different architecture.
 Model names are routing hints, not authority. Any model can discover an issue
 outside its current role and hand it back instead of guessing.
 
+## Capability-aware routing
+
+The default distribution is asymmetric by design:
+
+- economical models implement most bounded, reversible, test-protected units;
+- capable models plan milestones, resolve material ambiguity, independently
+  review results, and implement the smaller set of judgment-heavy, difficult, or
+  high-risk units where local mechanics require substantial reasoning.
+
+This is a routing preference, not an authority grant. A capable model that writes
+code assumes the implementer role and obeys the same scope, gates, and stop
+conditions. An economical model that encounters an architectural choice, an
+unfrozen invariant, or an unsafe assumption returns to planning/review instead of
+guessing. For high-risk code written by a capable model, use a separate capable
+review context or model when practical; self-review alone is not the independent
+gate.
+
 ## Right-sized contracts
 
 Do not maximize planning detail. A useful contract freezes the outcome,
@@ -117,7 +134,7 @@ Only the planner/reviewer may originate plan/review-to-execute, `COMPLETE`, or
 
 Use `templates/MODEL_HANDOFF.md`. Every switch records:
 
-- protocol version, stable ID, roles, explicit review mode, verified time,
+- protocol version, stable ID, roles, recommended capability, explicit review mode, verified time,
   milestone, Git baseline, and working-tree ownership;
 - one user-visible objective and explicit non-goals;
 - exact acceptance commands, thresholds, artifacts, and cleanup;
@@ -211,17 +228,34 @@ that add no verification value.
 
 The implementer first converts the behavioral reproducer and adjacent variant
 into failing tests, then chooses the smallest mechanism that satisfies the
-invariant. For
-path, identity, concurrency, recovery, and other high-risk work, vary the relevant
-dimensions—not only input values, but also object identity, timing, ancestry,
-aliasing, interruption point, and before/during/after replacement. If the
-suggested mechanism cannot satisfy the invariant, choose a safer in-scope method;
-escalate only when that requires a public, architectural, or scope decision.
+invariant. For an ordinary correction, one meaningful adjacent variant is the
+minimum. For path, identity, concurrency, snapshot/cache, state-publication,
+recovery, security, or similarly high-risk work, the contract and tests cover
+every applicable dimension in this matrix:
 
-Local discretion remains inside the handoff's allowed paths and actions. A new dependency,
-public interface or schema change, migration, external write, or edit
-outside that boundary requires explicit authority even when it appears to be the
-cleanest implementation.
+- input value and object/file identity;
+- path, ancestry, alias, and replacement identity;
+- ordering and the boundary between observation and publication;
+- before, during, and after replacement or invalidation;
+- failure and interruption points.
+
+Record why a dimension is inapplicable rather than silently omitting it. Exercise
+timing with deterministic hooks or barriers, not sleeps, timestamp luck, or one
+observed interleaving. For state publication, only inputs actually observed and
+included by the same successful generation may be marked fresh; a modification
+after observation remains dirty.
+
+If the same invariant fails a second time after a correction, stop serial
+case-specific patching. Set `Contract depth` to `high-risk` and return to the
+planner/reviewer to rebuild the coverage matrix before more edits. The code change
+may still be small, but acceptance must prove the class-wide invariant.
+
+If the suggested mechanism cannot satisfy the invariant, choose a safer in-scope
+method; escalate only when that requires a public, architectural, or scope
+decision. Local discretion remains inside the handoff's allowed paths and
+actions. A new dependency, public interface or schema change, migration, external
+write, or edit outside that boundary requires explicit authority even when it
+appears to be the cleanest implementation.
 
 A correction is not reviewable merely because the named reproducer passes. It
 must pass the adjacent variants, prior regression suite, required real workflow,
@@ -304,7 +338,8 @@ irrelevant adversarial variants.
 
 1. Tell the outgoing model: `我要切换模型。请按项目规则完成并检查交接，然后停止。`
 2. Wait until the helper check passes and it reports a recoverable state.
-3. Change the model.
+3. Change to the reported `Recommended capability`: normally `economical` for
+   bounded implementation and `capable` for planning/review or difficult work.
 4. Tell the incoming model: `请按项目交接继续。` It reads `To role` from the
    bootstrap. Use a role-specific prompt only to override the recorded route.
 5. Require the incoming role to begin from the bounded snapshot and report a
@@ -368,13 +403,18 @@ GitHub is the shared source and review history, not a runtime dependency. Instal
 projects continue locally. A maintained local clone normally updates with
 `git pull`; downloading a new archive for every task is unnecessary.
 
-### Upgrade from protocol 0.2
+### Upgrade from protocol 0.3 or earlier
 
 Update the installed rule, playbook, template, and `.model-handoff/handoff.py`
-together. Then update the live `MODEL_HANDOFF.md` to protocol `0.3` and add
-`Review mode`: use `inline` for `EXECUTION_TO_REVIEW` unless an exact specialized
-gate is frozen, and `none` for every other state. Run the new checker before the
-next switch. A partial upgrade intentionally fails rather than guessing a route.
+together. Then update the live `MODEL_HANDOFF.md` to protocol `0.4` and add
+`Recommended capability`: use `capable` whenever `To role` is
+`planner/reviewer`; for `implementer`, choose `economical` for most bounded work
+or `capable` for judgment-heavy work. Every `high-risk` contract requires
+`capable` and an explicit coverage matrix or reasoned inapplicability record.
+Protocol 0.2 packets must also add
+`Review mode`: use `inline` for ordinary `EXECUTION_TO_REVIEW` and `none` for
+non-review states. Run the new checker before the next switch. A partial upgrade
+intentionally fails rather than guessing a route.
 
 ## Reuse in another project
 

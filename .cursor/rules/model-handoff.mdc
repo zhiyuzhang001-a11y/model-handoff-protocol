@@ -5,9 +5,9 @@ alwaysApply: true
 
 # Bidirectional Model Handoff
 
-- Roles are `planner/reviewer` and `implementer`; model names do not grant extra
-  authority. Route ambiguity and judgment to planning/review and bounded work to
-  implementation.
+- Roles, not model names, grant authority. Route most bounded, reversible,
+  test-protected work to economical implementers; use capable models for
+  planning/review and judgment-heavy or high-risk implementation.
 - Bootstrap first with `python3 .model-handoff/handoff.py snapshot .`; if the
   helper is unavailable, read `STATUS.md`, `MODEL_HANDOFF.md`, and Git state.
   Expand only the exact plan/report sections named as required context.
@@ -23,14 +23,14 @@ alwaysApply: true
   proposed mechanism, and add adjacent tests when this better satisfies the gate,
   but may not leave allowed paths or add dependencies, public/API/schema changes,
   migrations, or external writes without explicit authority.
-- For path, identity, concurrency, recovery, or security work, passing only the
-  reported reproducer is insufficient; verify the root invariant across nearby
-  value-, identity-, timing-, and boundary-changing variants that apply.
+- For path, identity, concurrency, snapshot/cache, state-publication, recovery, or security work, cover every applicable value, identity, path, ordering, observation/publication, replacement, failure, and interruption dimension.
+- A second post-fix failure of the same invariant stops serial patching: return to planning/review, mark `high-risk`, and rebuild the coverage matrix before edits.
 - The implementer hands back exact changes, files, commands/results, failed
   attempts, deviations, repository/process state, risks, and the precise review
   or decision requested.
 - Obey `Review mode`: `inline` decides the milestone directly; `bugbot` or `security`
   runs that exact gate. Never ask the user to choose a reviewer for a checked packet.
+- At each switch, record and report `Recommended capability: economical | capable`; the user should never have to infer the next model tier.
 - Update `MODEL_HANDOFF.md` at every role/model switch and verified stage boundary.
   Dynamic state belongs there and in `STATUS.md`, never in this rule.
 - Keep the packet compact and delta-first. Point to exact evidence paths/sections;

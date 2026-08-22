@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-PROTOCOL_VERSION = "0.3"
+PROTOCOL_VERSION = "0.4"
 VALID_STATES = {
     "PLAN_TO_EXECUTE",
     "EXECUTION_TO_REVIEW",
@@ -22,6 +22,7 @@ VALID_STATES = {
     "IDLE",
 }
 VALID_ROLES = {"planner/reviewer", "implementer"}
+VALID_CAPABILITIES = {"economical", "capable"}
 VALID_CONTRACT_DEPTHS = {"thin", "standard", "high-risk"}
 VALID_REVIEW_MODES = {"inline", "bugbot", "security", "none"}
 EXPECTED_TARGET_ROLE = {
@@ -53,6 +54,7 @@ REQUIRED_METADATA = (
     "State",
     "From role",
     "To role",
+    "Recommended capability",
     "Review mode",
     "Contract depth",
     "Last verified",
@@ -245,6 +247,23 @@ def _validate_review_correction(handoff: MarkdownRecord, errors: list[str]) -> N
             )
 
 
+def _validate_high_risk_contract(handoff: MarkdownRecord, errors: list[str]) -> None:
+    """Require an explicit coverage matrix or a reasoned inapplicability record."""
+    if handoff.metadata.get("Contract depth") != "high-risk":
+        return
+    acceptance = _bullet_fields(
+        handoff.sections.get("Acceptance and required evidence", "")
+    )
+    value = acceptance.get("High-risk coverage matrix", "")
+    if _is_placeholder(value):
+        errors.append("high-risk contract requires High-risk coverage matrix")
+    elif _is_bare_inapplicable(value):
+        errors.append(
+            "high-risk coverage matrix cannot be bare none/not applicable; "
+            "list applicable dimensions or give a reason"
+        )
+
+
 def _git(root: Path, *args: str) -> tuple[int, str]:
     try:
         process = subprocess.run(
@@ -326,6 +345,9 @@ def inspect_project(root: Path) -> dict[str, Any]:
     for key in ("From role", "To role"):
         if handoff.metadata.get(key) not in VALID_ROLES:
             errors.append(f"invalid {key.lower()}: {handoff.metadata.get(key, 'missing')}")
+    capability = handoff.metadata.get("Recommended capability", "")
+    if capability not in VALID_CAPABILITIES:
+        errors.append(f"invalid recommended capability: {capability or 'missing'}")
     if handoff.metadata.get("Contract depth") not in VALID_CONTRACT_DEPTHS:
         errors.append(
             f"invalid contract depth: {handoff.metadata.get('Contract depth', 'missing')}"
@@ -337,6 +359,10 @@ def inspect_project(root: Path) -> dict[str, Any]:
     expected_source = EXPECTED_SOURCE_ROLE.get(state)
     if expected_source and handoff.metadata.get("From role") != expected_source:
         errors.append(f"state {state} must originate from role {expected_source}")
+    if handoff.metadata.get("To role") == "planner/reviewer" and capability != "capable":
+        errors.append("planner/reviewer handoff requires Recommended capability capable")
+    if handoff.metadata.get("Contract depth") == "high-risk" and capability != "capable":
+        errors.append("high-risk handoff requires Recommended capability capable")
     review_mode = handoff.metadata.get("Review mode", "")
     if review_mode not in VALID_REVIEW_MODES:
         errors.append(f"invalid review mode: {review_mode or 'missing'}")
@@ -403,6 +429,7 @@ def inspect_project(root: Path) -> dict[str, Any]:
     if context:
         _validate_context_pointers(root, context, errors)
     _validate_review_correction(handoff, errors)
+    _validate_high_risk_contract(handoff, errors)
 
     for key in ("Date", "State", "Active milestone", "Current handoff"):
         if _is_placeholder(status.metadata.get(key, "")):

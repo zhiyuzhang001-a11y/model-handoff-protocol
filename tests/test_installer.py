@@ -37,14 +37,27 @@ class InstallerTests(unittest.TestCase):
             rule = (target / ".cursor/rules/model-handoff.mdc").read_text(
                 encoding="utf-8"
             )
+            execution_rule = (
+                target / ".cursor/rules/project-execution.mdc"
+            ).read_text(encoding="utf-8")
             handoff = (target / "MODEL_HANDOFF.md").read_text(encoding="utf-8")
+            plan = (target / "docs/IMPLEMENTATION_PLAN.md").read_text(
+                encoding="utf-8"
+            )
         self.assertIn("project-specific | protocol-generic | unclear", feedback)
         self.assertIn("Never push an unreviewed target-project rule", playbook)
         self.assertIn("Milestone review versus specialized review", playbook)
         self.assertIn("review before `main`", rule)
         self.assertIn("Never ask the user to choose a reviewer", rule)
+        self.assertIn("economical implementers", rule)
+        self.assertIn("second post-fix failure", rule)
+        self.assertIn("Capability-aware routing", playbook)
+        self.assertIn("deterministic hooks/barriers", execution_rule)
         self.assertIn("Review mode: `inline | bugbot | security | none`", handoff)
+        self.assertIn("Recommended capability: `economical | capable`", handoff)
         self.assertIn("name exactly /review-bugbot or /review-security", handoff)
+        self.assertIn("High-risk coverage matrix", handoff)
+        self.assertIn("Execution routing", plan)
 
     def test_apply_never_overwrites_existing_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

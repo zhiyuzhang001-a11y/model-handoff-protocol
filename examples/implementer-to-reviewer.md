@@ -3,12 +3,13 @@
 This is an abbreviated teaching example, not a valid live packet. Start from
 `templates/MODEL_HANDOFF.md` and complete every required field.
 
-- Protocol version: `0.3`
+- Protocol version: `0.4`
 - Review mode: `inline`
 - Handoff ID: `2026-01-15-m4-cache-key-review`
 - State: `EXECUTION_TO_REVIEW`
 - From role: `implementer`
 - To role: `planner/reviewer`
+- Recommended capability: `capable`
 - Contract depth: `standard`
 - Last verified: `2026-01-15T11:10:00Z`
 - Active milestone: `M4 Stage 1`

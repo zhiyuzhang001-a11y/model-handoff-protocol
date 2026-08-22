@@ -24,9 +24,17 @@
 - [ ] Separate task-owned changes from pre-existing working-tree changes.
 - [ ] Name one user-visible objective and explicit non-goals.
 - [ ] Record exact gates, commands, counts, artifacts, and stop conditions.
+- [ ] Route most bounded, reversible, test-protected units to an economical model;
+      reserve planning, independent review, and judgment-heavy/high-risk units for
+      a capable model.
+- [ ] For high-risk corrections, record all applicable invariant dimensions and
+      deterministic timing controls; explain omissions.
 - [ ] Record one exact next action and one requested response.
 - [ ] Set `Review mode` to `inline`, `bugbot`, or `security` only for
       `EXECUTION_TO_REVIEW`; use `none` for every other state.
+- [ ] Set `Recommended capability` to `capable` for planner/reviewer; choose
+      `economical` for most bounded implementation and `capable` for difficult or
+      high-risk implementation.
 - [ ] Copy the active milestone and exact next action verbatim between status and
       handoff; point to exact required/on-demand headings instead of whole files.
 - [ ] Keep detailed logs and history in referenced artifacts, not the bootstrap.
@@ -39,6 +47,8 @@
 - [ ] Did the incoming role reconstruct the objective without chat history?
 - [ ] Was any completed work repeated?
 - [ ] Did either role silently choose architecture or weaken acceptance?
+- [ ] Did a second failure of the same invariant trigger high-risk replanning
+      instead of another narrow patch?
 - [ ] Were commands and results precise enough to reproduce?
 - [ ] Were the permanent rules concise and the dynamic packet current?
 - [ ] Did the incoming role stop loading context once the contract was safe?

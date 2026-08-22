@@ -17,11 +17,12 @@ from scripts.install import install
 
 HANDOFF = """# Current model handoff
 
-- Protocol version: `0.3`
+- Protocol version: `0.4`
 - Handoff ID: `2026-08-22-m1-execute`
 - State: `PLAN_TO_EXECUTE`
 - From role: `planner/reviewer`
 - To role: `implementer`
+- Recommended capability: `economical`
 - Review mode: `none`
 - Contract depth: `thin`
 - Last verified: `2026-08-22T10:00:00Z`
@@ -125,7 +126,7 @@ class HandoffTests(unittest.TestCase):
 
     def test_parser_separates_metadata_and_sections(self) -> None:
         record = parse_markdown(HANDOFF)
-        self.assertEqual("0.3", record.metadata["Protocol version"])
+        self.assertEqual("0.4", record.metadata["Protocol version"])
         self.assertIn("Exact next action", record.sections)
 
     def test_parser_ignores_headings_inside_fenced_evidence(self) -> None:
@@ -168,6 +169,7 @@ class HandoffTests(unittest.TestCase):
                 HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
                 .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
                 .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
                 .replace("- Review mode: `none`", "- Review mode: `inline`")
             )
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
@@ -185,6 +187,7 @@ class HandoffTests(unittest.TestCase):
                 HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
                 .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
                 .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
             )
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
             errors = inspect_project(target)["errors"]
@@ -197,6 +200,7 @@ class HandoffTests(unittest.TestCase):
                 HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
                 .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
                 .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
                 .replace("- Review mode: `none`", "- Review mode: `security`")
             )
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
@@ -227,6 +231,7 @@ class HandoffTests(unittest.TestCase):
                 HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
                 .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
                 .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
                 .replace("- Review mode: `none`", "- Review mode: `inline`")
                 .replace(
                     "Implement and request ACCEPT_STAGE_1.",
@@ -265,6 +270,47 @@ class HandoffTests(unittest.TestCase):
             (target / "MODEL_HANDOFF.md").write_text(invalid, encoding="utf-8")
             errors = inspect_project(target)["errors"]
         self.assertTrue(any("must target role implementer" in item for item in errors))
+
+    def test_planner_reviewer_requires_capable_recommendation(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            review = (
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
+                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                .replace("- Review mode: `none`", "- Review mode: `inline`")
+            )
+            (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
+            errors = inspect_project(target)["errors"]
+        self.assertTrue(any("requires Recommended capability capable" in item for item in errors))
+
+    def test_high_risk_contract_requires_capable_model_and_coverage_matrix(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            high_risk = HANDOFF.replace(
+                "- Contract depth: `thin`", "- Contract depth: `high-risk`"
+            )
+            (target / "MODEL_HANDOFF.md").write_text(high_risk, encoding="utf-8")
+            errors = inspect_project(target)["errors"]
+            self.assertTrue(
+                any("high-risk handoff requires Recommended capability capable" in item for item in errors)
+            )
+            self.assertTrue(
+                any("high-risk contract requires High-risk coverage matrix" in item for item in errors)
+            )
+
+            valid = high_risk.replace(
+                "- Recommended capability: `economical`",
+                "- Recommended capability: `capable`",
+            ).replace(
+                "Run the focused test and store its summary.",
+                "Run the focused test and store its summary.\n\n"
+                "- High-risk coverage matrix: identity, ordering, and interruption; "
+                "path and replacement are inapplicable because no filesystem state exists.",
+            )
+            (target / "MODEL_HANDOFF.md").write_text(valid, encoding="utf-8")
+            valid_errors = inspect_project(target)["errors"]
+        self.assertEqual([], valid_errors)
 
     def test_review_to_execute_requires_actionable_correction_contract(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
