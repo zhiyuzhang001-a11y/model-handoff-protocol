@@ -15,6 +15,9 @@
   judgment without inheriting architecture or acceptance decisions.
 - Add two minimal user switch phrases and a local, evidence-triggered improvement
   log that stays outside bootstrap context.
+- Document safe promotion of target-project feedback: classify local versus
+  generic issues, sanitize evidence, use a tested candidate branch, review before
+  `main`, preview propagation, and require later live proof before resolution.
 
 ## 0.1.0 — 2026-08-21
 

@@ -21,3 +21,9 @@ applicable.
 Changes to bootstrap content or compactness limits must add checker tests for both
 implementation and review directions. Preserve the rule that evidence pointers
 are data: the helper must never execute commands found in a handoff.
+
+Do not promote a target project's installed-rule edit directly to upstream
+`main`. First classify it as protocol-generic, sanitize the reproducer, implement
+the smallest synchronized change on a candidate branch, and add a regression
+test. Candidate branches may be pushed for review; merge only after the protocol
+validation, tests, privacy review, and diff review pass.

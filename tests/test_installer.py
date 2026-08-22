@@ -26,6 +26,21 @@ class InstallerTests(unittest.TestCase):
                 self.assertTrue((target / destination).is_file())
             self.assertTrue((target / ".model-handoff/handoff.py").is_file())
 
+    def test_installed_project_contains_improvement_workflow(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory)
+            install(target, apply=True)
+            feedback = (target / ".model-handoff/FEEDBACK.md").read_text(encoding="utf-8")
+            playbook = (target / "docs/MODEL_HANDOFF_PLAYBOOK.md").read_text(
+                encoding="utf-8"
+            )
+            rule = (target / ".cursor/rules/model-handoff.mdc").read_text(
+                encoding="utf-8"
+            )
+        self.assertIn("project-specific | protocol-generic | unclear", feedback)
+        self.assertIn("Never push an unreviewed target-project rule", playbook)
+        self.assertIn("review before `main`", rule)
+
     def test_apply_never_overwrites_existing_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = Path(directory)

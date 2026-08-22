@@ -44,6 +44,6 @@ alwaysApply: true
   processes, external runs, and temporary state; leave a recoverable repository.
 - Before switching, run `python3 .model-handoff/handoff.py check .`. Follow the
   playbook for schema, staged context loading, conflicts, and examples.
-- If a switch causes measurable friction, append one compact entry to
-  `.model-handoff/FEEDBACK.md`; never load it during normal bootstrap or change
-  stable rules in the middle of the active task.
+- Log measurable switch friction in `.model-handoff/FEEDBACK.md`; keep project fixes local.
+  Propose generic changes on protocol-source branches with sanitized evidence and tests;
+  review before `main`. Never bootstrap feedback or mutate stable rules mid-task.

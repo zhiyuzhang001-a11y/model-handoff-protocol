@@ -313,12 +313,38 @@ friction—missing required context, repeated work, a stale or broken pointer, w
 role routing, an oversized packet, or an unverifiable claim—append one compact
 entry to `.model-handoff/FEEDBACK.md`. That file is never bootstrap context.
 
-After three completed switches, or immediately after one severe failure, the
-planner/reviewer may inspect open feedback and propose the smallest protocol
-change. Change the reusable local source repository first, add a regression test,
-run validation, then preview installation into the real project. Manually merge
-only `differs` files; never auto-overwrite project-specific rules or live state.
-Mark the feedback resolved only after a later switch proves the improvement.
+Do not silently generalize a target-project workaround. Classify it first:
+
+- **Project-specific:** it depends on that repository's paths, tooling, risk
+  boundary, product behavior, or approval policy. Keep it in that project.
+- **Protocol-generic:** the same failure could affect unrelated installed
+  projects. Treat it as a candidate change to the reusable protocol source.
+- **Unclear:** keep recording evidence; do not change the shared protocol yet.
+
+After three completed switches, or immediately after one severe failure, use this
+promotion workflow for a protocol-generic candidate:
+
+1. Finish or safely stop the active project task; do not mutate stable shared
+   rules halfway through execution.
+2. Preserve the reproducer and observed impact in the target project's private
+   `.model-handoff/FEEDBACK.md`. Do not copy private paths, commits, logs, URLs,
+   customer data, or unreleased design details into the public protocol source.
+3. Never push an unreviewed target-project rule change directly to upstream `main`.
+   In an up-to-date clone of the protocol source, create a candidate branch.
+4. Re-express the problem generically, make the smallest synchronized change to
+   rules, templates, checker, prompts, and documentation that actually need it,
+   and add a regression test that fails without the correction.
+5. Run protocol validation and all tests. Push the candidate branch if remote
+   backup or review is useful; review the diff and evidence before merging `main`.
+6. Pull the accepted source revision locally, run the installer in dry-run mode
+   against the originating project, and manually merge only relevant `differs`.
+   Never auto-overwrite project-specific rules or live state.
+7. Mark feedback `RESOLVED` only after a later real switch proves the correction;
+   otherwise keep it `OPEN` or mark the proposal `REJECTED` with the reason.
+
+GitHub is the shared source and review history, not a runtime dependency. Installed
+projects continue locally. A maintained local clone normally updates with
+`git pull`; downloading a new archive for every task is unnecessary.
 
 ## Reuse in another project
 

@@ -80,10 +80,12 @@ def validate() -> list[str]:
             "root invariant",
             "non-behavioral corrections",
             "external writes without explicit authority",
+            "review before `main`",
         ),
         "docs/MODEL_HANDOFF_PLAYBOOK.md": (
             "Root-cause corrections and bounded autonomy", "Do not invent adversarial cases",
             "A new dependency",
+            "Never push an unreviewed target-project rule change directly to upstream `main`",
         ),
         "templates/MODEL_HANDOFF.md": (
             "Root invariant:", "not applicable with reason", "no new dependency",
@@ -91,12 +93,23 @@ def validate() -> list[str]:
         "prompts/incoming-implementer.txt": (
             "root invariants", "returned behavioral defect", "introducing dependencies",
         ),
+        "templates/HANDOFF_FEEDBACK.md": (
+            "project-specific | protocol-generic | unclear",
+            "Candidate branch:",
+            "Resolution proof:",
+        ),
+        "README.md": (
+            "never push an unreviewed target-project rule directly to upstream `main`",
+        ),
+        "README.zh-CN.md": (
+            "通用候选不应直接推送到GitHub `main`",
+        ),
     }
     for relative, required_phrases in policy_requirements.items():
         text = (ROOT / relative).read_text(encoding="utf-8")
         for phrase in required_phrases:
             if phrase not in text:
-                errors.append(f"root-cause autonomy policy missing from {relative}: {phrase}")
+                errors.append(f"required protocol policy missing from {relative}: {phrase}")
 
     for example in sorted((ROOT / "examples").glob("*.md")):
         text = example.read_text(encoding="utf-8")

@@ -139,9 +139,13 @@ irreversibility, or evidence cost increases.
 
 The installed protocol is fully local and needs no recurring download. Log only
 measurable switch friction in `.model-handoff/FEEDBACK.md`, outside bootstrap
-context. After three completed switches or one severe failure, review open items,
-change this local source repository with a regression test, and use installer
-preview to merge `differs` safely into the working project.
+context. Keep repository-specific workarounds in their project. Promote only a
+failure that can affect unrelated projects: reproduce it generically on a protocol
+source branch, sanitize evidence, add a regression test, validate, and review the
+candidate before merging `main`. A candidate branch may be pushed for backup or
+review; never push an unreviewed target-project rule directly to upstream `main`.
+After acceptance, preview the installer against the originating project and merge
+only relevant `differs`. Resolve feedback only after a later live switch proves it.
 
 ## Core files
 

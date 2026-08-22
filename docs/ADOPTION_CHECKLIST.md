@@ -43,3 +43,14 @@
 - [ ] Was the contract thin enough to leave reversible local choices to the
       implementer, but detailed enough to prevent unsafe guessing?
 - [ ] Remove instructions that are duplicated without changing a measured need.
+
+## Promote a protocol improvement
+
+- [ ] Record measurable evidence privately in `.model-handoff/FEEDBACK.md`.
+- [ ] Classify the issue as project-specific, protocol-generic, or unclear.
+- [ ] Keep project-specific workarounds in the target project.
+- [ ] Sanitize a generic reproducer before it enters the protocol source.
+- [ ] Use a candidate branch; do not push an unreviewed target rule to `main`.
+- [ ] Add a regression test and run full validation before review and merge.
+- [ ] Preview installation and manually merge only relevant `differs`.
+- [ ] Mark feedback resolved only after a later live switch proves the change.
