@@ -19,7 +19,10 @@ milestones. Keep changing task state out of permanent rules.
 
 The installed `.model-handoff/handoff.py` helper checks the live contract and
 renders a bounded bootstrap snapshot. It does not decide what to do; it prevents
-the incoming role from starting with stale or unnecessarily broad context.
+the incoming role from starting with stale or unnecessarily broad context. Its
+`check` command validates record structure, status/Git freshness, and routing
+consistency; it does not inspect code correctness, prove tests, accept a stage,
+or substitute for protocol verification, Bugbot, or Security Review.
 
 ## Roles
 
@@ -83,6 +86,8 @@ rule, snapshot, contract delta, and evidence index. A planner therefore creates
 the largest cohesive execution batch that shares frozen invariants, allowed
 scope, and one acceptance suite and can reasonably finish in one model context.
 Do not create a handoff boundary for each file, test, or mechanical sub-step.
+A stage is this cohesive batch at a meaningful acceptance boundary, not every
+ordered plan item and not the fact that a model happened to change.
 
 Choose `economical-batch` when implementation volume is high, local decisions are
 reversible, tests are authoritative, and the model can complete several ordered
@@ -307,7 +312,9 @@ evidence artifacts at the independence level required by `Verification mode`.
 
 ### Milestone verification depth versus specialized review
 
-Stage verification is mandatory; a model switch is not. Every packet carries
+Stage verification is mandatory; a model switch is not. Verification is triggered
+once at a cohesive batch's acceptance boundary, not after each file, test, repair,
+plan item, or model change. Every packet carries
 `Verification mode: self | independent | bugbot | security | none`:
 
 - `self` keeps the capable implementer in the same context, changes its role to
@@ -327,6 +334,19 @@ Both `self` and `independent` return `ACCEPT_STAGE`, `REFINE`, `BLOCKED_DECISION
 `COMPLETE`. If a `self` check discovers an independence trigger, it must stop and
 rewrite the packet as `independent` before acceptance; it must not silently expand
 self-verification into a substitute for an independent gate.
+
+`self` is an integrated execution closeout, not a handoff to a new model. Use the
+already loaded contract and inspect the final delta once. Do not rerun the full
+snapshot, reconstruct the plan, or repeat already evidenced gates unless context
+was compacted, the records conflict, or fresh evidence is required. A capable
+model planning and implementing ordinary eligible work therefore performs one
+lightweight closeout, not a second full review cycle.
+
+The helper check is a different control. Run it when actually handing off, after
+resuming, and when recording a final protocol decision so stale or contradictory
+records do not propagate. Passing it proves only contract consistency; it never
+proves that the implementation or its evidence is correct. Do not run it after
+every edit or test merely to simulate verification.
 
 `bugbot` and `security` require the matching
 `/review-bugbot` or `/review-security` command in `Requested response from the
@@ -395,8 +415,9 @@ irrelevant adversarial variants.
 
 1. Tell the outgoing model: `我要切换模型。请按项目规则完成并检查交接，然后停止。`
 2. Wait until the helper check passes and it reports a recoverable state.
-3. If `Verification mode` is `self`, do not switch models: tell the current capable
-   model to perform the recorded lightweight verification. Otherwise change to the
+3. If `Verification mode` is `self`, do not switch models or reload bootstrap:
+   tell the current capable model to close the batch with the recorded lightweight
+   verification. Otherwise change to the
    reported `Recommended capability`: normally `economical` for bounded
    implementation and `capable` for independent verification or difficult work.
 4. Tell the incoming model: `请按项目交接继续。` It reads `To role` from the

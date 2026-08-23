@@ -100,6 +100,9 @@ def validate() -> list[str]:
             ".model-handoff/CONTROL.md",
             "Mode: paused",
             "Only explicit user resume",
+            "acceptance boundaries, not model switches or micro-steps",
+            "integrated closeout, not a handoff",
+            "contract/status/Git/routing consistency only",
         ),
         ".cursor/rules/project-execution.mdc": (
             "deterministic hooks/barriers",
@@ -107,6 +110,7 @@ def validate() -> list[str]:
             "largest cohesive batch",
             "not a forced handoff boundary",
             "correction loops would cost as much",
+            "batch acceptance boundary—not a model change",
         ),
         "docs/MODEL_HANDOFF_PLAYBOOK.md": (
             "Root-cause corrections and bounded autonomy", "Do not invent adversarial cases",
@@ -126,6 +130,8 @@ def validate() -> list[str]:
             "Execution-batch economics",
             "largest cohesive execution batch",
             "one consolidated",
+            "Passing it proves only contract consistency",
+            "integrated execution closeout, not a handoff",
         ),
         "templates/MODEL_HANDOFF.md": (
             "Root invariant:",
@@ -135,12 +141,14 @@ def validate() -> list[str]:
             "Verification mode: `self | independent | bugbot | security | none`",
             "no new dependency",
             "name exactly /review-bugbot or /review-security",
+            "without a model handoff or full snapshot reload",
         ),
         "templates/IMPLEMENTATION_PLAN.md": (
             "Execution routing:",
             "economical-batch | capable-direct | hybrid",
             "Batch boundary:",
             "Verification routing:",
+            "one self closeout at the batch acceptance boundary",
             "High-risk coverage matrix:",
         ),
         "prompts/incoming-implementer.txt": (
@@ -155,6 +163,8 @@ def validate() -> list[str]:
             "For `independent`, use a separate capable context",
             "most bounded, reversible, test-protected implementation",
             "preserve a separate verification gate whenever risk",
+            "do not reload the snapshot",
+            "one integrated",
         ),
         "templates/HANDOFF_FEEDBACK.md": (
             "project-specific | protocol-generic | unclear",
@@ -176,6 +186,8 @@ def validate() -> list[str]:
             "capable-direct",
             "python3 .model-handoff/update.py .",
             "Preview first; never overwrite differs/conflict",
+            "Verification is triggered by",
+            "only a contract-consistency check",
         ),
         "README.zh-CN.md": (
             "通用候选不应直接推送到GitHub `main`",
@@ -193,6 +205,8 @@ def validate() -> list[str]:
             "capable-direct",
             "python3 .model-handoff/update.py .",
             "绝不覆盖 differs 或 conflict",
+            "复核由批次验收边界触发",
+            "只是交接合同检查",
         ),
         "docs/REMOTE_INSTALL.md": (
             "One-sentence request for a project model",

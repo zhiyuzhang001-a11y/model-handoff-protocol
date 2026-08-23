@@ -124,6 +124,16 @@ python3 .model-handoff/handoff.py snapshot .
 `bugbot`或`security`。普通阶段验收专门使用verification命名，与会弹出二选一的通用
 `/review`技能分开。检查器会拒绝缺失或冲突的模式。
 
+这里的“阶段”是共享同一范围、不变量和验收套件的完整执行批次，不是一个文件、测试或
+计划小步骤。复核由批次验收边界触发，不由模型切换触发。同一个高级模型规划并完成普通
+`thin/standard`批次时，只在当前上下文做一次集成式`self`收尾；不重新加载完整snapshot，
+也不重复已有测试证据。只有经济模型产出、高风险、重大偏离、边界变化或明确独立要求才
+切换到`independent`。
+
+`python3 .model-handoff/handoff.py check .`只是交接合同检查：验证文件结构、状态/Git新鲜度
+和路由一致性，不检查代码正确性，不证明测试，也不等于阶段复核、Bugbot或Security Review。
+在实际交接、恢复协议或记录最终协议决定时运行即可，不应在每次编辑或测试后运行。
+
 交接还会写入`Recommended capability: economical | capable`，由旧模型直接告诉你下一步
 选择经济模型还是高级模型。`planner/verifier`必须使用`capable`；`implementer`默认选择
 `economical`，判断密集的工作可选择`capable`；所有`high-risk`合同都必须选择`capable`

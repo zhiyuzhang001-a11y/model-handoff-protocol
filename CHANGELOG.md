@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Define verification cadence by cohesive-batch acceptance boundaries rather
+  than model switches or micro-steps; make eligible capable-model `self` an
+  integrated same-context closeout, and distinguish the deterministic handoff
+  checker from code verification, test evidence, and specialized review.
+
 - Require exactly one boundary-matched specialized review command for Bugbot or
   Security verification, reject mixed, duplicated, suffixed, or misplaced
   commands, and cover complete versus partial protocol 0.5-to-0.6 migration.

@@ -5,11 +5,9 @@ alwaysApply: true
 
 # Bidirectional Model Handoff
 
-- Roles, not model names, grant authority. Route most bounded, reversible,
-  test-protected work to economical implementers; use capable models for
-  planning/verification and judgment-heavy or high-risk implementation.
+- Roles, not model names, grant authority. Route most bounded, reversible, test-protected work to economical implementers; use capable models for planning/verification and judgment-heavy or high-risk implementation.
 - Read `.model-handoff/CONTROL.md` first. On explicit user exit, set `Mode: paused` and retain every protocol file; while paused, skip this contract except safe control/resume handling. Only explicit user resume sets `active`.
-- When active, bootstrap first with `python3 .model-handoff/handoff.py snapshot .`; if the
+- When active, bootstrap a new or compacted context first with `python3 .model-handoff/handoff.py snapshot .`; if the
   helper is unavailable, read `STATUS.md`, `MODEL_HANDOFF.md`, and Git state.
   Expand only the exact plan/report sections named as required context.
 - Do not edit until you can state the objective, frozen scope, completed evidence,
@@ -28,8 +26,10 @@ alwaysApply: true
 - The implementer hands back exact changes, files, commands/results, failed
   attempts, deviations, repository/process state, risks, and the precise verification
   or decision requested.
-- Obey `Verification mode`; every stage is verified, but not every check needs a model switch. `self` lets a capable implementer check its own thin/standard work only when all gates pass, scope and assumptions hold, and no independent gate applies.
+- Obey `Verification mode`; verify acceptance boundaries, not model switches or micro-steps. A stage is the largest cohesive batch sharing scope, invariants, and gates—not a file, test, or plan item—and not every check needs a model switch.
+- For eligible capable execution, `self` is one integrated closeout, not a handoff: inspect plan conformance, diff scope, named evidence, and deviations in the current context; do not reload the full snapshot or repeat already evidenced gates.
 - Use `independent` in a separate capable context for economical output, high-risk work, material deviations, or required independence. Protocol verification never invokes generic `/review`; only a preselected `bugbot` or `security` mode runs its exact gate. Never ask the user to choose a reviewer.
+- The helper `check` validates contract/status/Git/routing consistency only; it is not code verification, test evidence, acceptance, Bugbot, or Security. Run it at handoff, resume, or a final protocol decision—not after each edit or test.
 - If a Bugbot/Security selector appears unexpectedly, cancel it and treat “return to the project handoff” as a routing correction: run the snapshot and obey `Verification mode`. If that mode is missing or invalid for `EXECUTION_TO_VERIFY`, repair it to `independent`; never infer a specialized gate.
 - Report `self` as no switch required; when switching, record `Recommended capability: economical | capable` so the user never infers the next model tier.
 - Update `MODEL_HANDOFF.md` at every role/model switch and verified stage boundary.

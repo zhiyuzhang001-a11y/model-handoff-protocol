@@ -67,15 +67,21 @@ class InstallerTests(unittest.TestCase):
         self.assertIn("deterministic hooks/barriers", execution_rule)
         self.assertIn("largest cohesive batch", execution_rule)
         self.assertIn("not a forced handoff boundary", execution_rule)
+        self.assertIn("batch acceptance boundary—not a model change", execution_rule)
+        self.assertIn("integrated closeout, not a handoff", rule)
+        self.assertIn("contract/status/Git/routing consistency only", rule)
+        self.assertIn("Passing it proves only contract consistency", playbook)
         self.assertIn(
             "Verification mode: `self | independent | bugbot | security | none`",
             handoff,
         )
         self.assertIn("Recommended capability: `economical | capable`", handoff)
         self.assertIn("name exactly /review-bugbot or /review-security", handoff)
+        self.assertIn("without a model handoff or full snapshot reload", handoff)
         self.assertIn("High-risk coverage matrix", handoff)
         self.assertIn("Execution routing", plan)
         self.assertIn("economical-batch | capable-direct | hybrid", plan)
+        self.assertIn("one self closeout at the batch acceptance boundary", plan)
         self.assertIn("Batch boundary", plan)
         self.assertIn("REPOSITORY_URL", updater)
         self.assertIn("check=False", updater)

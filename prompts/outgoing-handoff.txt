@@ -14,5 +14,7 @@ Use `Verification mode: self` and report that no model switch is needed only whe
 capable implementer completed thin/standard work with all gates passing, no
 material deviation or boundary change, and no independent gate. Otherwise route
 to `independent` in a separate capable context or the exact specialized gate.
+For `self`, the packet and helper check record one integrated closeout; they do not
+create a model handoff or require the current context to reload the snapshot.
 Finish or record owned work, run `python3 .model-handoff/handoff.py check .`, fix
 all errors, leave a recoverable state, then stop.

@@ -86,7 +86,7 @@
 
 `<Implement, verify, choose, diagnose, approve, or close—with one precise result
 such as ACCEPT_STAGE_1 or a named defect plus acceptance delta. When Verification
-mode is self, keep the capable model in this context for a lightweight conformance
-check; independent requires a separate capable context. Only a preselected bugbot
+mode is self, keep the capable model in this context for one integrated closeout,
+without a model handoff or full snapshot reload; independent requires a separate capable context. Only a preselected bugbot
 or security mode may name exactly /review-bugbot or /review-security. Never use
 generic /review or ask the user to select a reviewer.>`

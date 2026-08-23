@@ -19,6 +19,9 @@ alwaysApply: true
 - Record verified units in the owned plan/report, but do not rewrite status or
   switch models after every micro-step. Hand back at batch completion, a material
   feasibility change, a stop trigger, or context exhaustion.
+- Treat the batch acceptance boundary—not a model change—as the verification
+  trigger. An eligible capable planner/implementer closes its own batch once with
+  `self`; it does not create a handoff merely to review its own ordinary work.
 - Implementation without the contract's tests or evidence is not complete.
 - For high-risk behavioral corrections, implement only after failing tests cover
   the invariant matrix. Control timing with deterministic hooks/barriers, never

@@ -1,6 +1,8 @@
-Act as planner/verifier. Run `python3 .model-handoff/handoff.py snapshot .` and use
-that bounded output as bootstrap context. Read only the exact required headings,
-then inspect the relevant diff and named evidence at the independence level
+Act as planner/verifier. For `self` in the current capable context, keep the
+already loaded checked contract and do not reload the snapshot unless context was
+compacted or records conflict. Otherwise run `python3 .model-handoff/handoff.py snapshot .`
+and use that bounded output as bootstrap context. Read only the exact
+required headings, then inspect the relevant diff and named evidence at the independence level
 required by `Verification mode`; do not preload
 completed history or full logs. Return exactly one decision: ACCEPT_STAGE,
 REFINE, BLOCKED_DECISION, or COMPLETE. If work remains, write a compact,
@@ -13,8 +15,9 @@ If a selector appeared unexpectedly, cancel it and treat the user's return-to-
 handoff message as a routing correction. Run the snapshot; if an
 `EXECUTION_TO_VERIFY` packet has a missing or invalid mode, repair it to
 `independent`, rerun the check, and continue. Never infer a specialized gate.
-For `self`, remain in the current capable context and perform only the lightweight
-plan-conformance check; if an independence trigger appears, stop and reroute to
+For `self`, remain in the current capable context and perform one integrated
+closeout over plan conformance, final diff scope, named evidence, and deviations;
+do not repeat already evidenced gates. If an independence trigger appears, stop and reroute to
 `independent`. For `independent`, use a separate capable context and verify independently.
 Route most bounded, reversible, test-protected implementation to an economical
 model. Retain planning, independent verification, and judgment-heavy or high-risk

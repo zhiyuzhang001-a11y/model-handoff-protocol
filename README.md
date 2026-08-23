@@ -163,6 +163,20 @@ incoming model never asks the user to choose Bugbot or Security Review. Protocol
 verification is deliberately named differently from the optional generic
 `/review` skill, which opens that selector.
 
+A stage is one cohesive execution batch with shared scope, invariants, and
+acceptance gates—not a file, test, or plan item. Verification is triggered by
+that acceptance boundary, not by a model change. When one capable model plans and
+implements eligible thin/standard work, `self` is a single integrated closeout in
+the current context: it does not reload the full snapshot or repeat already
+evidenced gates. Use `independent` for economical output, high risk, material
+deviation, boundary changes, or an explicit independence requirement.
+
+`python3 .model-handoff/handoff.py check .` is only a contract-consistency check.
+It validates record structure, status/Git freshness, and routing; it does not
+inspect code correctness, prove tests, accept a stage, or replace Bugbot or
+Security Review. Run it at actual handoff, resume, or a final protocol decision,
+not after every edit or test.
+
 Each packet also declares `Recommended capability: economical | capable`, so the
 outgoing model tells the user which tier to select. A planner/verifier handoff
 must recommend `capable`; an implementer handoff selects `economical` for most
