@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-PROTOCOL_VERSION = "0.4"
+PROTOCOL_VERSION = "0.5"
 VALID_STATES = {
     "PLAN_TO_EXECUTE",
     "EXECUTION_TO_REVIEW",
@@ -24,7 +24,7 @@ VALID_STATES = {
 VALID_ROLES = {"planner/reviewer", "implementer"}
 VALID_CAPABILITIES = {"economical", "capable"}
 VALID_CONTRACT_DEPTHS = {"thin", "standard", "high-risk"}
-VALID_REVIEW_MODES = {"inline", "bugbot", "security", "none"}
+VALID_REVIEW_MODES = {"self", "inline", "bugbot", "security", "none"}
 EXPECTED_TARGET_ROLE = {
     "PLAN_TO_EXECUTE": "implementer",
     "REVIEW_TO_EXECUTE": "implementer",
@@ -368,9 +368,13 @@ def inspect_project(root: Path) -> dict[str, Any]:
         errors.append(f"invalid review mode: {review_mode or 'missing'}")
     elif state == "EXECUTION_TO_REVIEW":
         if review_mode == "none":
-            errors.append("EXECUTION_TO_REVIEW requires Review mode inline, bugbot, or security")
+            errors.append(
+                "EXECUTION_TO_REVIEW requires Review mode self, inline, bugbot, or security"
+            )
     elif review_mode != "none":
         errors.append(f"state {state or 'missing'} requires Review mode none")
+    if review_mode == "self" and handoff.metadata.get("Contract depth") == "high-risk":
+        errors.append("high-risk work cannot use Review mode self; use independent review")
 
     requested_response = handoff.sections.get("Requested response from the next role", "")
     specialized_command = {
@@ -379,17 +383,17 @@ def inspect_project(root: Path) -> dict[str, Any]:
     }.get(review_mode)
     if re.search(r"/review(?![-\w])", requested_response):
         errors.append(
-            "generic /review is ambiguous; use Review mode inline or an exact "
+            "generic /review is ambiguous; use Review mode self/inline or an exact "
             "/review-bugbot or /review-security command"
         )
     if specialized_command and specialized_command not in requested_response:
         errors.append(
             f"Review mode {review_mode} requires {specialized_command} in requested response"
         )
-    if review_mode == "inline" and re.search(
+    if review_mode in {"self", "inline"} and re.search(
         r"/review-(?:bugbot|security)", requested_response
     ):
-        errors.append("Review mode inline conflicts with a specialized review request")
+        errors.append(f"Review mode {review_mode} conflicts with a specialized review request")
     working_tree = handoff.metadata.get("Working tree", "").lower()
     if working_tree not in {"clean", "dirty"}:
         errors.append("Working tree must be clean or dirty")

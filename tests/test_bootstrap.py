@@ -11,7 +11,7 @@ from scripts.bootstrap import REPOSITORY_URL, _run_git, bootstrap, validate_ref
 
 class BootstrapTests(unittest.TestCase):
     def test_ref_validation_accepts_branch_tag_and_commit_shapes(self) -> None:
-        for ref in ("main", "v0.4.0", "release/0.4", "4f8a2b3"):
+        for ref in ("main", "v0.5.0", "release/0.5", "4f8a2b3"):
             self.assertEqual(ref, validate_ref(ref))
 
     def test_ref_validation_rejects_option_and_traversal_shapes(self) -> None:

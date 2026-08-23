@@ -17,7 +17,7 @@ from scripts.install import install
 
 HANDOFF = """# Current model handoff
 
-- Protocol version: `0.4`
+- Protocol version: `0.5`
 - Handoff ID: `2026-08-22-m1-execute`
 - State: `PLAN_TO_EXECUTE`
 - From role: `planner/reviewer`
@@ -126,7 +126,7 @@ class HandoffTests(unittest.TestCase):
 
     def test_parser_separates_metadata_and_sections(self) -> None:
         record = parse_markdown(HANDOFF)
-        self.assertEqual("0.4", record.metadata["Protocol version"])
+        self.assertEqual("0.5", record.metadata["Protocol version"])
         self.assertIn("Exact next action", record.sections)
 
     def test_parser_ignores_headings_inside_fenced_evidence(self) -> None:
@@ -192,6 +192,59 @@ class HandoffTests(unittest.TestCase):
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
             errors = inspect_project(target)["errors"]
         self.assertTrue(any("requires Review mode" in item for item in errors))
+
+    def test_capable_thin_work_allows_same_context_self_review(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            review = (
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
+                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
+                .replace("- Review mode: `none`", "- Review mode: `self`")
+            )
+            (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
+            result = inspect_project(target)
+        self.assertEqual([], result["errors"])
+
+    def test_high_risk_work_rejects_same_context_self_review(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            review = (
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
+                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
+                .replace("- Review mode: `none`", "- Review mode: `self`")
+                .replace("- Contract depth: `thin`", "- Contract depth: `high-risk`")
+                .replace(
+                    "Run the focused test and store its summary.",
+                    "Run the focused test and store its summary.\n\n"
+                    "- High-risk coverage matrix: identity and ordering; all other "
+                    "dimensions are inapplicable because no external state exists.",
+                )
+            )
+            (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
+            errors = inspect_project(target)["errors"]
+        self.assertTrue(any("cannot use Review mode self" in item for item in errors))
+
+    def test_self_review_rejects_specialized_review_command(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            review = (
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
+                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
+                .replace("- Review mode: `none`", "- Review mode: `self`")
+                .replace(
+                    "Implement and request ACCEPT_STAGE_1.",
+                    "Run /review-security and request ACCEPT_STAGE_1.",
+                )
+            )
+            (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
+            errors = inspect_project(target)["errors"]
+        self.assertTrue(any("Review mode self conflicts" in item for item in errors))
 
     def test_specialized_review_mode_requires_matching_exact_command(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

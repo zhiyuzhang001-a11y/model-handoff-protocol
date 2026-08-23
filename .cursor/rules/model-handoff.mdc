@@ -16,8 +16,7 @@ alwaysApply: true
 - The planner/reviewer hands off objective, non-goals, allowed files/actions,
   ordered steps, acceptance tests, evidence format, authority boundary, stop
   conditions, and the first exact implementation action.
-- Behavioral-defect handbacks state the root invariant, reproducer, adjacent
-  variant, and rejected shallow fixes; non-behavioral corrections may explain why variants are inapplicable.
+- Behavioral-defect handbacks state the root invariant, reproducer, adjacent variant, and rejected shallow fixes; non-behavioral corrections may explain why variants are inapplicable.
 - Objectives, scope, gates, and invariants are frozen; implementation mechanics
   are not. Inside that boundary, the implementer may refactor locally, replace a
   proposed mechanism, and add adjacent tests when this better satisfies the gate,
@@ -28,9 +27,9 @@ alwaysApply: true
 - The implementer hands back exact changes, files, commands/results, failed
   attempts, deviations, repository/process state, risks, and the precise review
   or decision requested.
-- Obey `Review mode`: `inline` decides the milestone directly; `bugbot` or `security`
-  runs that exact gate. Never ask the user to choose a reviewer for a checked packet.
-- At each switch, record and report `Recommended capability: economical | capable`; the user should never have to infer the next model tier.
+- Obey `Review mode`; every stage is reviewed, but not every review needs a model switch. `self` lets a capable implementer check its own thin/standard work only when all gates pass, scope and assumptions hold, and no independent gate applies.
+- Use `inline` in a separate capable context for economical output, high-risk work, material deviations, or required independence; `bugbot` and `security` run only their exact gates. Never ask the user to choose a reviewer.
+- Report `self` as no switch required; when switching, record `Recommended capability: economical | capable` so the user never infers the next model tier.
 - Update `MODEL_HANDOFF.md` at every role/model switch and verified stage boundary.
   Dynamic state belongs there and in `STATUS.md`, never in this rule.
 - Keep the packet compact and delta-first. Point to exact evidence paths/sections;
@@ -43,7 +42,6 @@ alwaysApply: true
   changes, or continue through a material conflict among plan, status, Git, and
   observed evidence.
 - One role writes at a time; before switching, record owned commands, processes, external runs, and temporary state, leaving a recoverable repository.
-- Before switching, run `python3 .model-handoff/handoff.py check .`. Follow the
-  playbook for schema, staged context loading, conflicts, and examples.
+- Before switching, run `python3 .model-handoff/handoff.py check .`; follow the playbook for schema, staged context loading, conflicts, and examples.
 - Log switch friction in `.model-handoff/FEEDBACK.md`; keep project fixes local. Propose
   generic changes on tested, sanitized branches; review before `main`, never mid-task.

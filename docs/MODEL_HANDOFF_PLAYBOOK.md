@@ -44,17 +44,17 @@ outside its current role and hand it back instead of guessing.
 The default distribution is asymmetric by design:
 
 - economical models implement most bounded, reversible, test-protected units;
-- capable models plan milestones, resolve material ambiguity, independently
-  review results, and implement the smaller set of judgment-heavy, difficult, or
+- capable models plan milestones, resolve material ambiguity, review results at
+  the required independence level, and implement the smaller set of judgment-heavy, difficult, or
   high-risk units where local mechanics require substantial reasoning.
 
 This is a routing preference, not an authority grant. A capable model that writes
 code assumes the implementer role and obeys the same scope, gates, and stop
 conditions. An economical model that encounters an architectural choice, an
 unfrozen invariant, or an unsafe assumption returns to planning/review instead of
-guessing. For high-risk code written by a capable model, use a separate capable
-review context or model when practical; self-review alone is not the independent
-gate.
+guessing. A capable implementer may self-review ordinary bounded work, but
+high-risk work and every explicitly independent gate use a separate capable
+context or model.
 
 ## Right-sized contracts
 
@@ -280,20 +280,35 @@ Do not ask another model to “take a look” without naming the decision.
 For `EXECUTION_TO_REVIEW`, the bootstrap automatically adds changes/repository
 state, commands/results, and decisions/rationale. The reviewer receives the
 review index and measured results, not full logs; it then opens the named diff and
-evidence artifacts independently.
+evidence artifacts at the independence level required by `Review mode`.
 
-### Milestone review versus specialized review
+### Milestone review depth versus specialized review
 
-Every packet carries `Review mode: inline | bugbot | security | none`. For
-`EXECUTION_TO_REVIEW`, `inline` means the current planner/reviewer performs the
-milestone review directly from the checked packet, diff, gates, and evidence,
-then returns `ACCEPT_STAGE`, `REFINE`, `BLOCKED_DECISION`, or `COMPLETE`. Other
-states require `none`.
+Stage review is mandatory; a model switch is not. Every packet carries
+`Review mode: self | inline | bugbot | security | none`:
 
-`bugbot` and `security` are optional specialized modes. They require the matching
+- `self` keeps the capable implementer in the same context, changes its role to
+  planner/reviewer, and limits review to plan conformance, diff scope, named
+  gates, evidence, and deviations. It is allowed only for `thin` or `standard`
+  work when all gates pass, scope and frozen assumptions hold, no dependency,
+  public/API/schema, migration, or external-write boundary changed, and no
+  independent gate was required.
+- `inline` requires a separate capable model or context to inspect the checked
+  packet, diff, gates, and evidence independently. Use it for economical-model
+  output, every `high-risk` contract, material deviations or failed assumptions,
+  uncertain/incomplete evidence, boundary changes, and explicit independence.
+- `bugbot` and `security` run only the matching specialized gate.
+- `none` is required outside `EXECUTION_TO_REVIEW`.
+
+Both `self` and `inline` return `ACCEPT_STAGE`, `REFINE`, `BLOCKED_DECISION`, or
+`COMPLETE`. If a `self` review discovers an independence trigger, it must stop and
+rewrite the packet as `inline` before acceptance; it must not silently expand
+self-review into a substitute for an independent gate.
+
+`bugbot` and `security` require the matching
 `/review-bugbot` or `/review-security` command in `Requested response from the
 next role`. The checker rejects missing, invalid, or state-conflicting modes and
-rejects an `inline` packet that also requests a specialized command. The incoming
+rejects a `self` or `inline` packet that also requests a specialized command. The incoming
 role therefore follows a single checked route and never asks the user to choose.
 After a specialized result returns, the planner/reviewer still makes the protocol
 decision unless the frozen contract explicitly says otherwise.
@@ -338,8 +353,10 @@ irrelevant adversarial variants.
 
 1. Tell the outgoing model: `我要切换模型。请按项目规则完成并检查交接，然后停止。`
 2. Wait until the helper check passes and it reports a recoverable state.
-3. Change to the reported `Recommended capability`: normally `economical` for
-   bounded implementation and `capable` for planning/review or difficult work.
+3. If `Review mode` is `self`, do not switch models: tell the current capable
+   model to perform the recorded lightweight review. Otherwise change to the
+   reported `Recommended capability`: normally `economical` for bounded
+   implementation and `capable` for independent review or difficult work.
 4. Tell the incoming model: `请按项目交接继续。` It reads `To role` from the
    bootstrap. Use a role-specific prompt only to override the recorded route.
 5. Require the incoming role to begin from the bounded snapshot and report a
@@ -411,16 +428,19 @@ copy-ready repository instruction or standalone bootstrap in
 `docs/REMOTE_INSTALL.md`. Existing `differs` always require review; the updater
 does not infer that live state or project-specific rules are disposable.
 
-### Upgrade from protocol 0.3 or earlier
+### Upgrade from protocol 0.4 or earlier
 
 Update the installed rule, playbook, template, and `.model-handoff/handoff.py`
-together. Then update the live `MODEL_HANDOFF.md` to protocol `0.4` and add
-`Recommended capability`: use `capable` whenever `To role` is
+together. Then update the live `MODEL_HANDOFF.md` to protocol `0.5`. Ordinary
+capable-model output may use `Review mode: self` only under the eligibility rules
+above; existing `inline` packets now explicitly require a separate capable
+context. Protocol 0.3 packets must also add `Recommended capability`: use
+`capable` whenever `To role` is
 `planner/reviewer`; for `implementer`, choose `economical` for most bounded work
 or `capable` for judgment-heavy work. Every `high-risk` contract requires
 `capable` and an explicit coverage matrix or reasoned inapplicability record.
-Protocol 0.2 packets must also add
-`Review mode`: use `inline` for ordinary `EXECUTION_TO_REVIEW` and `none` for
+Protocol 0.2 packets must add
+`Review mode`: use `inline` for independent `EXECUTION_TO_REVIEW` and `none` for
 non-review states. Run the new checker before the next switch. A partial upgrade
 intentionally fails rather than guessing a route.
 

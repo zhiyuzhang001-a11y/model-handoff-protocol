@@ -1,12 +1,12 @@
 # Current model handoff
 
-- Protocol version: `0.4`
+- Protocol version: `0.5`
 - Handoff ID: `<date-or-sequence>-<short-purpose>`
 - State: `PLAN_TO_EXECUTE | EXECUTION_TO_REVIEW | REVIEW_TO_EXECUTE | BLOCKED_TO_DECIDE | COMPLETE | IDLE`
 - From role: `planner/reviewer | implementer`
 - To role: `planner/reviewer | implementer`
 - Recommended capability: `economical | capable`
-- Review mode: `inline | bugbot | security | none`
+- Review mode: `self | inline | bugbot | security | none`
 - Contract depth: `thin | standard | high-risk`
 - Last verified: `<YYYY-MM-DDTHH:MM:SSZ>`
 - Active milestone: `<relative path#exact heading, or none>`
@@ -86,5 +86,6 @@
 
 `<Implement, review, choose, diagnose, approve, or close—with one precise result
 such as ACCEPT_STAGE_1 or a named defect plus acceptance delta. When Review mode
-is bugbot or security, name exactly /review-bugbot or /review-security; inline
-milestone review never uses generic /review or asks the user to select a reviewer.>`
+is self, keep the capable model in this context for a lightweight conformance
+review; inline requires a separate capable context. For bugbot or security, name exactly /review-bugbot or /review-security. Never use generic /review or ask the
+user to select a reviewer.>`

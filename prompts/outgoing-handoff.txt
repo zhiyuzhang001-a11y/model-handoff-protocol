@@ -8,5 +8,9 @@ ownership, risks, stop conditions, live resources, and one requested response.
 For execution-to-review, include diff base, task-owned versus pre-existing paths,
 every gate's command/exit/count/artifact, unrun gates with reasons, failures and
 deviations, then request one named review decision. Do not claim acceptance.
+Use `Review mode: self` and report that no model switch is needed only when the
+capable implementer completed thin/standard work with all gates passing, no
+material deviation or boundary change, and no independent gate. Otherwise route
+to `inline` in a separate capable context or the exact specialized gate.
 Finish or record owned work, run `python3 .model-handoff/handoff.py check .`, fix
 all errors, leave a recoverable state, then stop.

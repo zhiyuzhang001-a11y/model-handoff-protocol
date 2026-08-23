@@ -5,9 +5,9 @@ implementation, and review models without treating chat history as durable
 project state.
 
 The protocol is model-agnostic. By default, a cost-efficient model performs most
-bounded implementation, while a capable model plans, independently reviews, and
-also implements the smaller set of difficult or high-risk units. Roles—not model
-names—still define authority.
+bounded implementation, while a capable model plans, reviews at the required
+independence level, and also implements the smaller set of difficult or high-risk
+units. Roles—not model names—still define authority.
 
 ## Why this exists
 
@@ -31,7 +31,7 @@ implementer verifies context and executes
                   ↓
 implementer returns diff, evidence, and a precise question
                   ↓
-planner/reviewer independently reviews
+planner/reviewer reviews at the required independence level
                   ↓
 ACCEPT_STAGE | REFINE | BLOCKED_DECISION | COMPLETE
                   ↓
@@ -41,7 +41,8 @@ repeat when needed
 The return direction is equally strict: after bounded execution, the implementer
 records the diff base, owned versus pre-existing changes, command/exit/count
 evidence, failures, deviations, risks, cleanup, and one named review decision.
-The planner/reviewer independently inspects the referenced diff and evidence.
+The planner/reviewer inspects the referenced diff and evidence; independence is
+risk-based rather than automatic.
 
 ## Quick start
 
@@ -55,7 +56,7 @@ rules, following the repository's safe installation and upgrade procedure.
 
 A capable project model can perform the safe preview, installation, and any
 manual merge from that instruction when it has repository access. See the
-copy-ready Chinese version and authenticated private-repository procedure in
+copy-ready Chinese version and public bootstrap procedure in
 [Remote installation and updates](docs/REMOTE_INSTALL.md).
 The longer safety-explicit prompt there says: `Preview first; never overwrite differs/conflict`
 or project live state.
@@ -90,7 +91,7 @@ For existing destinations, preview reports `identical`, `differs`, or `conflict`
 without changing them. Merge `differs` manually so project-specific rules and
 live state are preserved during protocol upgrades.
 
-After the first authenticated installation, preview the current GitHub `main`
+After the first installation, preview the current GitHub `main`
 without another manual clone:
 
 ```bash
@@ -117,12 +118,15 @@ After: Continue from the project handoff.
 The incoming model reads `To role` from the bootstrap. Role-specific prompts are
 only needed when the user intentionally overrides the recorded route.
 
-Each packet declares `Review mode: inline | bugbot | security | none`. Ordinary
-`EXECUTION_TO_REVIEW` uses `inline`; a specialized gate uses its exact mode and
-matching command. The checker rejects missing or conflicting routes, so the
-incoming model never asks the user to choose Bugbot or Security Review. Prefer the
-generic incoming phrase above; a bare `review` may route to an optional review
-skill before the protocol packet is read.
+Each packet declares `Review mode: self | inline | bugbot | security | none`.
+Every stage is reviewed, but a model switch is not always required. Eligible
+capable-model thin/standard work uses `self` in the same context; economical
+output, high-risk work, material deviations, and explicit independent gates use
+`inline` in a separate capable context. Specialized gates use their exact mode
+and command. The checker rejects missing or conflicting routes, so the incoming
+model never asks the user to choose Bugbot or Security Review. Prefer the generic
+incoming phrase above; a bare `review` may route to an optional review skill
+before the protocol packet is read.
 
 Each packet also declares `Recommended capability: economical | capable`, so the
 outgoing model tells the user which tier to select. A planner/reviewer handoff
@@ -130,10 +134,11 @@ must recommend `capable`; an implementer handoff selects `economical` for most
 bounded work and `capable` for judgment-heavy work. The checker requires
 `capable` plus an explicit coverage matrix for every `high-risk` contract.
 
-When upgrading from protocol 0.3 or earlier, merge the installed rule, playbook,
-template, and checker together. Then set the live packet to protocol 0.4 and add
-`Recommended capability`; protocol 0.2 packets must also add `Review mode`. The
-new checker rejects partial upgrades instead of guessing a route.
+When upgrading from protocol 0.4 or earlier, merge the installed rule, playbook,
+template, and checker together. Then set the live packet to protocol 0.5. Existing
+`inline` review now means a separate capable context; use `self` only under the
+bounded eligibility rules. Older packets must also add any missing capability or
+review fields. The checker rejects partial upgrades instead of guessing a route.
 
 Before changing models:
 
@@ -163,7 +168,14 @@ Act as implementer. Run the handoff snapshot, read only its exact required
 context headings, verify the contract, then execute the exact next action.
 ```
 
-After switching to a planner/reviewer:
+For a same-context capable review when the checked mode is `self`:
+
+```text
+Do not switch models. Change role to planner/reviewer and perform the recorded
+lightweight conformance review. Return one protocol decision.
+```
+
+After switching to a separate planner/reviewer for `inline`:
 
 ```text
 Act as planner/reviewer. Run the handoff snapshot, then inspect the named Git diff
@@ -177,11 +189,12 @@ Copy-ready versions live in [`prompts/`](prompts/).
 
 The default is to give economical models most simple, bounded, reversible, and
 test-protected work. Capable models freeze outcomes, invariants, acceptance,
-authority, stop conditions, and the first verifiable action; independently review
-the result; and implement judgment-heavy or high-risk code when that is the safer
-allocation. Any model writing code assumes the implementer role. High-risk work
-written by a capable model should still receive an independent capable review
-when practical.
+authority, stop conditions, and the first verifiable action; review the result at
+the required independence level; and implement judgment-heavy or high-risk code
+when that is the safer allocation. Any model writing code assumes the implementer
+role. Capable-model thin/standard work may receive same-context `self` review
+when all gates pass and no boundary changed. High-risk work always receives a
+separate capable review.
 
 For high-risk behavioral corrections, cover every applicable value, identity,
 path, ordering, observation/publication, replacement, failure, and interruption
