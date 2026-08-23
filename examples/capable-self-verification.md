@@ -1,14 +1,14 @@
-# Example: capable implementer to same-context review
+# Example: capable implementer to same-context verification
 
 This is an abbreviated teaching example, not a valid live packet. Start from
 `templates/MODEL_HANDOFF.md` and complete every required field.
 
-- Protocol version: `0.5`
-- Review mode: `self`
+- Protocol version: `0.6`
+- Verification mode: `self`
 - Handoff ID: `2026-01-18-m2-local-refactor-self-review`
-- State: `EXECUTION_TO_REVIEW`
+- State: `EXECUTION_TO_VERIFY`
 - From role: `implementer`
-- To role: `planner/reviewer`
+- To role: `planner/verifier`
 - Recommended capability: `capable`
 - Contract depth: `standard`
 
@@ -24,6 +24,6 @@ This is an abbreviated teaching example, not a valid live packet. Start from
 
 ## Requested response from the next role
 
-Do not switch models. In this context, change role to planner/reviewer and inspect
+Do not switch models. In this context, change role to planner/verifier and inspect
 only plan conformance, diff scope, named gates, evidence, and deviations. Return
-`ACCEPT_STAGE` or stop and reroute to `inline` if an independence trigger appears.
+`ACCEPT_STAGE` or stop and reroute to `independent` if an independence trigger appears.

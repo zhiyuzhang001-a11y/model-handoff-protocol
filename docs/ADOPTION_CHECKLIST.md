@@ -34,12 +34,12 @@
 - [ ] For high-risk corrections, record all applicable invariant dimensions and
       deterministic timing controls; explain omissions.
 - [ ] Record one exact next action and one requested response.
-- [ ] Set `Review mode` to `self`, `inline`, `bugbot`, or `security` only for
-      `EXECUTION_TO_REVIEW`; use `none` for every other state.
+- [ ] Set `Verification mode` to `self`, `independent`, `bugbot`, or `security`
+      only for `EXECUTION_TO_VERIFY`; use `none` for every other state.
 - [ ] Use `self` only for capable thin/standard execution with passing gates, no
       material deviation or boundary change, and no independent-review requirement;
-      use `inline` in a separate capable context otherwise.
-- [ ] Set `Recommended capability` to `capable` for planner/reviewer; choose
+      use `independent` in a separate capable context otherwise.
+- [ ] Set `Recommended capability` to `capable` for planner/verifier; choose
       `economical` for most bounded implementation and `capable` for difficult or
       high-risk implementation.
 - [ ] Copy the active milestone and exact next action verbatim between status and

@@ -1,1 +1,1 @@
-请按项目交接继续；先读取bootstrap，再按To role接手。
+请按项目交接继续；先读取bootstrap，再按To role和Verification mode接手。

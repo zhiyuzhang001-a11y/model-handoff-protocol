@@ -8,10 +8,16 @@ Usually, give a capable model in the target project only this instruction:
 > `https://github.com/zhiyuzhang001-a11y/model-handoff-protocol` as this project's
 > rules, following the repository's safe installation and upgrade procedure.
 
+This includes migrating all protocol-owned schema and routing names together to
+the current version; it must not leave an older live packet paired with a newer
+rule or checker.
+
 The shortest Chinese instruction is:
 
 > 从 `https://github.com/zhiyuzhang001-a11y/model-handoff-protocol` 安装或更新
 > `model-handoff-protocol`，作为当前项目规则；按仓库的安全安装和升级说明执行。
+
+其中包括把协议管理的schema和路由名称整体迁移到当前版本，不能让旧实时交接与新规则或检查器混用。
 
 If the target model may act too mechanically, use this explicit safety contract:
 
@@ -59,8 +65,8 @@ python3 .model-handoff/update.py .
 
 That helper uses Git without a shell or interactive credentials, fetches the
 latest `main` into a temporary directory, prints the exact commit, and previews
-it. Add `--apply` only to create newly introduced missing files. Existing `differs` remain untouched
-for manual review and merge. Use `--ref
+it. Add `--apply` only to create newly introduced missing files. Existing
+`differs` remain untouched for deliberate comparison and merge. Use `--ref
 <tag-or-commit>` when a reproducible pinned source is required.
 
 ## Why updates do not overwrite
@@ -69,7 +75,7 @@ Some installed files become project-owned immediately: `STATUS.md`,
 `MODEL_HANDOFF.md`, the implementation plan, feedback, and often local rule
 customizations. A remote updater cannot safely distinguish every intentional
 project change from an obsolete protocol copy. The installer therefore treats
-`differs` as a review request rather than an overwrite authorization.
+`differs` as a deliberate-merge request rather than overwrite authorization.
 
 This keeps installation simple without making updates destructive. The model can
 compare the fetched source with each reported `differs`, carry over only generic

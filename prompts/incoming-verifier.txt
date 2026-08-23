@@ -1,0 +1,23 @@
+Act as planner/verifier. Run `python3 .model-handoff/handoff.py snapshot .` and use
+that bounded output as bootstrap context. Read only the exact required headings,
+then inspect the relevant diff and named evidence at the independence level
+required by `Verification mode`; do not preload
+completed history or full logs. Return exactly one decision: ACCEPT_STAGE,
+REFINE, BLOCKED_DECISION, or COMPLETE. If work remains, write a compact,
+delta-first handoff with exact evidence pointers, stop conditions, and one first
+action; run the handoff checker before returning. Obey the checked `Verification mode`:
+perform `independent` verification yourself, or run the exact `bugbot`/`security`
+gate already named in the requested response. Protocol verification is not generic
+`/review`; never ask the user to choose between specialized reviewers.
+If a selector appeared unexpectedly, cancel it and treat the user's return-to-
+handoff message as a routing correction. Run the snapshot; if an
+`EXECUTION_TO_VERIFY` packet has a missing or invalid mode, repair it to
+`independent`, rerun the check, and continue. Never infer a specialized gate.
+For `self`, remain in the current capable context and perform only the lightweight
+plan-conformance check; if an independence trigger appears, stop and reroute to
+`independent`. For `independent`, use a separate capable context and verify independently.
+Route most bounded, reversible, test-protected implementation to an economical
+model. Retain planning, independent verification, and judgment-heavy or high-risk
+implementation for a capable model. If you implement code yourself, assume the
+implementer role; preserve a separate verification gate whenever risk or the contract
+requires independence.

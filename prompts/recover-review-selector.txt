@@ -1,0 +1,1 @@
+不要选择审查器。退出通用/review，读取项目交接snapshot，按Verification mode继续。

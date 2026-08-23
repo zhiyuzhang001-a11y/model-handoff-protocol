@@ -13,7 +13,7 @@ public upstream `main` without privacy review, regression tests, and branch revi
 
 ### `<YYYY-MM-DD>-<short-id>` — `<OPEN | RESOLVED | REJECTED>`
 
-- Direction: `<planner/reviewer -> implementer | implementer -> planner/reviewer | same-role>`
+- Direction: `<planner/verifier -> implementer | implementer -> planner/verifier | same-role>`
 - Symptom: `<missing context, repeated work, stale pointer, wrong route, oversized packet, or other>`
 - Evidence: `<handoff ID and exact observable impact; no full logs>`
 - Scope: `<project-specific | protocol-generic | unclear, with reason>`

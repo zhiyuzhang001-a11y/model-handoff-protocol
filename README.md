@@ -1,7 +1,7 @@
 # Model Handoff Protocol
 
 An evidence-first, bidirectional handoff protocol for switching between planning,
-implementation, and review models without treating chat history as durable
+implementation, and verification models without treating chat history as durable
 project state.
 
 The protocol is model-agnostic. By default, a cost-efficient model performs most
@@ -25,13 +25,13 @@ rationale. This protocol makes the repository the operational memory:
 ## Workflow
 
 ```text
-planner/reviewer defines a bounded contract
+planner/verifier defines a bounded contract
                   ↓
 implementer verifies context and executes
                   ↓
 implementer returns diff, evidence, and a precise question
                   ↓
-planner/reviewer reviews at the required independence level
+planner/verifier verifies at the required independence level
                   ↓
 ACCEPT_STAGE | REFINE | BLOCKED_DECISION | COMPLETE
                   ↓
@@ -40,8 +40,8 @@ repeat when needed
 
 The return direction is equally strict: after bounded execution, the implementer
 records the diff base, owned versus pre-existing changes, command/exit/count
-evidence, failures, deviations, risks, cleanup, and one named review decision.
-The planner/reviewer inspects the referenced diff and evidence; independence is
+evidence, failures, deviations, risks, cleanup, and one named verification decision.
+The planner/verifier inspects the referenced diff and evidence; independence is
 risk-based rather than automatic.
 
 ## Quick start
@@ -85,6 +85,7 @@ docs/MODEL_HANDOFF_PLAYBOOK.md
 .model-handoff/handoff.py
 .model-handoff/update.py
 .model-handoff/FEEDBACK.md
+.model-handoff/recover-review-selector.txt
 ```
 
 For existing destinations, preview reports `identical`, `differs`, or `conflict`
@@ -118,27 +119,40 @@ After: Continue from the project handoff.
 The incoming model reads `To role` from the bootstrap. Role-specific prompts are
 only needed when the user intentionally overrides the recorded route.
 
-Each packet declares `Review mode: self | inline | bugbot | security | none`.
-Every stage is reviewed, but a model switch is not always required. Eligible
+If an unexpected Bugbot/Security selector still appears, do not choose either
+option. Send one routing-correction sentence:
+
+```text
+Do not select a reviewer. Exit generic /review, read the project handoff snapshot,
+and continue according to Verification mode.
+```
+
+The model must preserve the contract and resume the recorded route. If an
+`EXECUTION_TO_VERIFY` packet has a missing or invalid mode, the deterministic safe
+fallback is `independent`; a specialized gate is never inferred.
+
+Each packet declares `Verification mode: self | independent | bugbot | security | none`.
+Every stage is verified, but a model switch is not always required. Eligible
 capable-model thin/standard work uses `self` in the same context; economical
 output, high-risk work, material deviations, and explicit independent gates use
-`inline` in a separate capable context. Specialized gates use their exact mode
-and command. The checker rejects missing or conflicting routes, so the incoming
-model never asks the user to choose Bugbot or Security Review. Prefer the generic
-incoming phrase above; a bare `review` may route to an optional review skill
-before the protocol packet is read.
+`independent` in a separate capable context. Specialized gates use their exact
+mode and command. The checker rejects missing or conflicting routes, so the
+incoming model never asks the user to choose Bugbot or Security Review. Protocol
+verification is deliberately named differently from the optional generic
+`/review` skill, which opens that selector.
 
 Each packet also declares `Recommended capability: economical | capable`, so the
-outgoing model tells the user which tier to select. A planner/reviewer handoff
+outgoing model tells the user which tier to select. A planner/verifier handoff
 must recommend `capable`; an implementer handoff selects `economical` for most
 bounded work and `capable` for judgment-heavy work. The checker requires
 `capable` plus an explicit coverage matrix for every `high-risk` contract.
 
-When upgrading from protocol 0.4 or earlier, merge the installed rule, playbook,
-template, and checker together. Then set the live packet to protocol 0.5. Existing
-`inline` review now means a separate capable context; use `self` only under the
-bounded eligibility rules. Older packets must also add any missing capability or
-review fields. The checker rejects partial upgrades instead of guessing a route.
+When upgrading from protocol 0.5 or earlier, merge the installed rule, playbook,
+template, and checker together. Then set the live packet to protocol 0.6. Rename
+`planner/reviewer` to `planner/verifier`, `Review mode` to `Verification mode`,
+`inline` to `independent`, and the execution/rework states to
+`EXECUTION_TO_VERIFY`/`VERIFY_TO_EXECUTE`. The checker rejects partial upgrades
+instead of guessing a route.
 
 Before changing models:
 
@@ -168,17 +182,17 @@ Act as implementer. Run the handoff snapshot, read only its exact required
 context headings, verify the contract, then execute the exact next action.
 ```
 
-For a same-context capable review when the checked mode is `self`:
+For a same-context capable verification when the checked mode is `self`:
 
 ```text
-Do not switch models. Change role to planner/reviewer and perform the recorded
-lightweight conformance review. Return one protocol decision.
+Do not switch models. Change role to planner/verifier and perform the recorded
+lightweight conformance check. Return one protocol decision.
 ```
 
-After switching to a separate planner/reviewer for `inline`:
+After switching to a separate planner/verifier for `independent`:
 
 ```text
-Act as planner/reviewer. Run the handoff snapshot, then inspect the named Git diff
+Act as planner/verifier. Run the handoff snapshot, then inspect the named Git diff
 and evidence independently. Return ACCEPT_STAGE, REFINE, BLOCKED_DECISION, or
 COMPLETE, and write a bounded return handoff if work remains.
 ```
@@ -189,12 +203,12 @@ Copy-ready versions live in [`prompts/`](prompts/).
 
 The default is to give economical models most simple, bounded, reversible, and
 test-protected work. Capable models freeze outcomes, invariants, acceptance,
-authority, stop conditions, and the first verifiable action; review the result at
+authority, stop conditions, and the first verifiable action; verify the result at
 the required independence level; and implement judgment-heavy or high-risk code
 when that is the safer allocation. Any model writing code assumes the implementer
-role. Capable-model thin/standard work may receive same-context `self` review
+role. Capable-model thin/standard work may receive same-context `self` verification
 when all gates pass and no boundary changed. High-risk work always receives a
-separate capable review.
+separate capable verification.
 
 For high-risk behavioral corrections, cover every applicable value, identity,
 path, ordering, observation/publication, replacement, failure, and interruption

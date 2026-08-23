@@ -3,11 +3,11 @@
 This is an abbreviated teaching example, not a valid live packet. Start from
 `templates/MODEL_HANDOFF.md` and complete every required field.
 
-- Protocol version: `0.5`
-- Review mode: `none`
+- Protocol version: `0.6`
+- Verification mode: `none`
 - Handoff ID: `2026-01-15-m4-cache-key`
 - State: `PLAN_TO_EXECUTE`
-- From role: `planner/reviewer`
+- From role: `planner/verifier`
 - To role: `implementer`
 - Recommended capability: `economical`
 - Contract depth: `standard`

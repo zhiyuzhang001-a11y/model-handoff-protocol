@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Rename ordinary stage review to protocol 0.6 verification (`planner/verifier`,
+  `Verification mode`, `EXECUTION_TO_VERIFY`, and `VERIFY_TO_EXECUTE`) so it no
+  longer collides semantically with the optional generic `/review` skill.
+- Add a one-sentence recovery path that cancels an accidental specialized-review
+  selector, preserves the contract, and deterministically falls back to
+  `independent` only when an execution-verification route is missing or invalid.
+
 - Add protocol 0.5 risk-based review routing: every stage is reviewed, while
   eligible capable-model thin/standard work may use same-context `self` review;
   economical output, high-risk work, material deviations, and independent gates

@@ -1,5 +1,5 @@
 ---
-description: Preserve goals, evidence, and exact next actions across planner, implementer, and reviewer model switches
+description: Preserve goals, evidence, and exact next actions across planner, implementer, and verifier model switches
 alwaysApply: true
 ---
 
@@ -7,13 +7,13 @@ alwaysApply: true
 
 - Roles, not model names, grant authority. Route most bounded, reversible,
   test-protected work to economical implementers; use capable models for
-  planning/review and judgment-heavy or high-risk implementation.
+  planning/verification and judgment-heavy or high-risk implementation.
 - Bootstrap first with `python3 .model-handoff/handoff.py snapshot .`; if the
   helper is unavailable, read `STATUS.md`, `MODEL_HANDOFF.md`, and Git state.
   Expand only the exact plan/report sections named as required context.
 - Do not edit until you can state the objective, frozen scope, completed evidence,
   remaining work, stop conditions, and one exact next action.
-- The planner/reviewer hands off objective, non-goals, allowed files/actions,
+- The planner/verifier hands off objective, non-goals, allowed files/actions,
   ordered steps, acceptance tests, evidence format, authority boundary, stop
   conditions, and the first exact implementation action.
 - Behavioral-defect handbacks state the root invariant, reproducer, adjacent variant, and rejected shallow fixes; non-behavioral corrections may explain why variants are inapplicable.
@@ -23,12 +23,13 @@ alwaysApply: true
   but may not leave allowed paths or add dependencies, public/API/schema changes,
   migrations, or external writes without explicit authority.
 - For path, identity, concurrency, snapshot/cache, state-publication, recovery, or security work, cover every applicable value, identity, path, ordering, observation/publication, replacement, failure, and interruption dimension.
-- A second post-fix failure of the same invariant stops serial patching: return to planning/review, mark `high-risk`, and rebuild the coverage matrix before edits.
+- A second post-fix failure of the same invariant stops serial patching: return to planning/verification, mark `high-risk`, and rebuild the coverage matrix before edits.
 - The implementer hands back exact changes, files, commands/results, failed
-  attempts, deviations, repository/process state, risks, and the precise review
+  attempts, deviations, repository/process state, risks, and the precise verification
   or decision requested.
-- Obey `Review mode`; every stage is reviewed, but not every review needs a model switch. `self` lets a capable implementer check its own thin/standard work only when all gates pass, scope and assumptions hold, and no independent gate applies.
-- Use `inline` in a separate capable context for economical output, high-risk work, material deviations, or required independence; `bugbot` and `security` run only their exact gates. Never ask the user to choose a reviewer.
+- Obey `Verification mode`; every stage is verified, but not every check needs a model switch. `self` lets a capable implementer check its own thin/standard work only when all gates pass, scope and assumptions hold, and no independent gate applies.
+- Use `independent` in a separate capable context for economical output, high-risk work, material deviations, or required independence. Protocol verification never invokes generic `/review`; only a preselected `bugbot` or `security` mode runs its exact gate. Never ask the user to choose a reviewer.
+- If a Bugbot/Security selector appears unexpectedly, cancel it and treat “return to the project handoff” as a routing correction: run the snapshot and obey `Verification mode`. If that mode is missing or invalid for `EXECUTION_TO_VERIFY`, repair it to `independent`; never infer a specialized gate.
 - Report `self` as no switch required; when switching, record `Recommended capability: economical | capable` so the user never infers the next model tier.
 - Update `MODEL_HANDOFF.md` at every role/model switch and verified stage boundary.
   Dynamic state belongs there and in `STATUS.md`, never in this rule.
@@ -44,4 +45,4 @@ alwaysApply: true
 - One role writes at a time; before switching, record owned commands, processes, external runs, and temporary state, leaving a recoverable repository.
 - Before switching, run `python3 .model-handoff/handoff.py check .`; follow the playbook for schema, staged context loading, conflicts, and examples.
 - Log switch friction in `.model-handoff/FEEDBACK.md`; keep project fixes local. Propose
-  generic changes on tested, sanitized branches; review before `main`, never mid-task.
+  generic changes on tested, sanitized branches; independently verify before `main`, never mid-task.

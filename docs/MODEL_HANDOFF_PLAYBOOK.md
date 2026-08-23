@@ -3,7 +3,7 @@
 ## Purpose
 
 This protocol preserves project intent and evidence when responsibility moves in
-either direction between a planning/review role and an implementation role,
+either direction between a planning/verification role and an implementation role,
 across context compaction, or into a new conversation. Chat history is useful,
 but repository records, Git state, and reproducible evidence are the operational
 source of truth.
@@ -23,11 +23,11 @@ the incoming role from starting with stale or unnecessarily broad context.
 
 ## Roles
 
-### Planner/reviewer
+### Planner/verifier
 
 Use this role for unclear goals, milestone contracts, architecture, tradeoffs,
 frozen acceptance criteria, major deviations, release decisions, and independent
-review. Its job is to reduce ambiguity into a bounded execution contract.
+verification. Its job is to reduce ambiguity into a bounded execution contract.
 
 ### Implementer
 
@@ -44,15 +44,15 @@ outside its current role and hand it back instead of guessing.
 The default distribution is asymmetric by design:
 
 - economical models implement most bounded, reversible, test-protected units;
-- capable models plan milestones, resolve material ambiguity, review results at
+- capable models plan milestones, resolve material ambiguity, verify results at
   the required independence level, and implement the smaller set of judgment-heavy, difficult, or
   high-risk units where local mechanics require substantial reasoning.
 
 This is a routing preference, not an authority grant. A capable model that writes
 code assumes the implementer role and obeys the same scope, gates, and stop
 conditions. An economical model that encounters an architectural choice, an
-unfrozen invariant, or an unsafe assumption returns to planning/review instead of
-guessing. A capable implementer may self-review ordinary bounded work, but
+unfrozen invariant, or an unsafe assumption returns to planning/verification instead of
+guessing. A capable implementer may self-verify ordinary bounded work, but
 high-risk work and every explicitly independent gate use a separate capable
 context or model.
 
@@ -69,7 +69,7 @@ for routine, reversible work in known files. The implementer may choose local
 mechanics inside the boundary and must return when a frozen assumption fails.
 
 Over-specification creates stale micro-steps, longer handoffs, duplicated
-reasoning, mechanical execution of bad assumptions, and a planner/reviewer
+reasoning, mechanical execution of bad assumptions, and a planner/verifier
 bottleneck. Under-specification forces the implementer to invent goals or gates.
 Optimize for the smallest contract that makes unsafe guessing unnecessary.
 Record `Contract depth` as `thin`, `standard`, or `high-risk` so the incoming
@@ -78,7 +78,7 @@ role knows whether detail is intentionally sparse or accidentally missing.
 ## Staged context loading
 
 Incoming roles load context in three stages and stop as soon as the contract is
-safe to execute or review:
+safe to execute or verify:
 
 1. **Bootstrap:** run `python3 .model-handoff/handoff.py snapshot .`. This yields
    status, live contract, observed Git state, open risks, and evidence pointers
@@ -116,25 +116,25 @@ The handoff packet cannot override a milestone. It must surface discrepancies.
 ## Handoff states
 
 - `PLAN_TO_EXECUTE`: a new bounded contract is ready for implementation.
-- `EXECUTION_TO_REVIEW`: implementation evidence is ready for review.
-- `REVIEW_TO_EXECUTE`: review found bounded follow-up work.
+- `EXECUTION_TO_VERIFY`: implementation evidence is ready for stage verification.
+- `VERIFY_TO_EXECUTE`: verification found bounded follow-up work.
 - `BLOCKED_TO_DECIDE`: continuing requires architecture, scope, approval, or user
   judgment.
 - `COMPLETE`: all milestone code, evidence, records, cleanup, and release work are
   complete.
 - `IDLE`: no milestone is authorized; the packet states how work may resume.
 
-`PLAN_TO_EXECUTE` and `REVIEW_TO_EXECUTE` target `implementer`. All other states
-target `planner/reviewer`. The user can therefore use one generic incoming phrase;
+`PLAN_TO_EXECUTE` and `VERIFY_TO_EXECUTE` target `implementer`. All other states
+target `planner/verifier`. The user can therefore use one generic incoming phrase;
 the checked state determines the role instead of relying on model identity.
-Only the planner/reviewer may originate plan/review-to-execute, `COMPLETE`, or
-`IDLE`; only the implementer may originate `EXECUTION_TO_REVIEW`.
+Only the planner/verifier may originate plan/verify-to-execute, `COMPLETE`, or
+`IDLE`; only the implementer may originate `EXECUTION_TO_VERIFY`.
 
 ## Required handoff packet
 
 Use `templates/MODEL_HANDOFF.md`. Every switch records:
 
-- protocol version, stable ID, roles, recommended capability, explicit review mode, verified time,
+- protocol version, stable ID, roles, recommended capability, explicit verification mode, verified time,
   milestone, Git baseline, and working-tree ownership;
 - one user-visible objective and explicit non-goals;
 - exact acceptance commands, thresholds, artifacts, and cleanup;
@@ -156,7 +156,7 @@ contract. Their active-milestone value and exact-next-action text must match;
 plans own durable scope and acceptance; reports own detailed evidence. Reference
 owned facts instead of copying them across files.
 
-## Planner/reviewer to implementer
+## Planner/verifier to implementer
 
 1. Run the bootstrap snapshot and expand only its required context pointers.
 2. Convert the desired outcome into one milestone or bounded stage.
@@ -165,7 +165,7 @@ owned facts instead of copying them across files.
    guessing; leave reversible local mechanics to the implementer.
 4. Split risky or independently verifiable units and identify the first action.
 5. Record pre-existing changes and owned commands/processes.
-6. Set state to `PLAN_TO_EXECUTE` or `REVIEW_TO_EXECUTE` and request a precise
+6. Set state to `PLAN_TO_EXECUTE` or `VERIFY_TO_EXECUTE` and request a precise
    implementation result.
 
 The contract is incomplete if the implementer must choose the architecture,
@@ -198,7 +198,7 @@ If a material conflict exists, record it and switch to `BLOCKED_TO_DECIDE`.
 - Update plan, status, report, and handoff when a verified result changes the next
   action or later feasibility.
 - Make reversible local implementation choices without requesting a new plan;
-  record only decisions that affect later work or review.
+  record only decisions that affect later work or verification.
 - Do not rerun expensive completed evidence unless inputs changed or independent
   reproduction is required.
 - Preserve unknown dirty-worktree changes; never manufacture a clean state with a
@@ -214,7 +214,7 @@ over reversible mechanics: it may refactor bounded code, replace a suggested
 implementation technique, and add adjacent negative tests without asking again.
 It may not weaken a gate, redefine success, or broaden the milestone.
 
-When review returns a behavioral defect, the handoff must include four things:
+When verification returns a behavioral defect, the handoff must include four things:
 
 1. the root invariant that the product must preserve;
 2. a minimal reproducible counterexample and exact expected result;
@@ -247,7 +247,7 @@ after observation remains dirty.
 
 If the same invariant fails a second time after a correction, stop serial
 case-specific patching. Set `Contract depth` to `high-risk` and return to the
-planner/reviewer to rebuild the coverage matrix before more edits. The code change
+planner/verifier to rebuild the coverage matrix before more edits. The code change
 may still be small, but acceptance must prove the class-wide invariant.
 
 If the suggested mechanism cannot satisfy the invariant, choose a safer in-scope
@@ -262,9 +262,9 @@ must pass the adjacent variants, prior regression suite, required real workflow,
 and evidence/cleanup gates. Record which root invariant was proven and which
 variant dimensions were exercised.
 
-## Implementer to planner/reviewer
+## Implementer to planner/verifier
 
-Use `EXECUTION_TO_REVIEW` when evidence is reviewable, or `BLOCKED_TO_DECIDE` when
+Use `EXECUTION_TO_VERIFY` when evidence is verifiable, or `BLOCKED_TO_DECIDE` when
 continuing requires judgment outside the contract. Include:
 
 - exact diff/commit and separation of task-owned and pre-existing changes;
@@ -277,48 +277,58 @@ continuing requires judgment outside the contract. Include:
 
 Do not ask another model to “take a look” without naming the decision.
 
-For `EXECUTION_TO_REVIEW`, the bootstrap automatically adds changes/repository
-state, commands/results, and decisions/rationale. The reviewer receives the
-review index and measured results, not full logs; it then opens the named diff and
-evidence artifacts at the independence level required by `Review mode`.
+For `EXECUTION_TO_VERIFY`, the bootstrap automatically adds changes/repository
+state, commands/results, and decisions/rationale. The verifier receives the
+verification index and measured results, not full logs; it then opens the named diff and
+evidence artifacts at the independence level required by `Verification mode`.
 
-### Milestone review depth versus specialized review
+### Milestone verification depth versus specialized review
 
-Stage review is mandatory; a model switch is not. Every packet carries
-`Review mode: self | inline | bugbot | security | none`:
+Stage verification is mandatory; a model switch is not. Every packet carries
+`Verification mode: self | independent | bugbot | security | none`:
 
 - `self` keeps the capable implementer in the same context, changes its role to
-  planner/reviewer, and limits review to plan conformance, diff scope, named
+  planner/verifier, and limits verification to plan conformance, diff scope, named
   gates, evidence, and deviations. It is allowed only for `thin` or `standard`
   work when all gates pass, scope and frozen assumptions hold, no dependency,
   public/API/schema, migration, or external-write boundary changed, and no
   independent gate was required.
-- `inline` requires a separate capable model or context to inspect the checked
+- `independent` requires a separate capable model or context to inspect the checked
   packet, diff, gates, and evidence independently. Use it for economical-model
   output, every `high-risk` contract, material deviations or failed assumptions,
   uncertain/incomplete evidence, boundary changes, and explicit independence.
 - `bugbot` and `security` run only the matching specialized gate.
-- `none` is required outside `EXECUTION_TO_REVIEW`.
+- `none` is required outside `EXECUTION_TO_VERIFY`.
 
-Both `self` and `inline` return `ACCEPT_STAGE`, `REFINE`, `BLOCKED_DECISION`, or
-`COMPLETE`. If a `self` review discovers an independence trigger, it must stop and
-rewrite the packet as `inline` before acceptance; it must not silently expand
-self-review into a substitute for an independent gate.
+Both `self` and `independent` return `ACCEPT_STAGE`, `REFINE`, `BLOCKED_DECISION`, or
+`COMPLETE`. If a `self` check discovers an independence trigger, it must stop and
+rewrite the packet as `independent` before acceptance; it must not silently expand
+self-verification into a substitute for an independent gate.
 
 `bugbot` and `security` require the matching
 `/review-bugbot` or `/review-security` command in `Requested response from the
 next role`. The checker rejects missing, invalid, or state-conflicting modes and
-rejects a `self` or `inline` packet that also requests a specialized command. The incoming
+rejects a `self` or `independent` packet that also requests a specialized command. The incoming
 role therefore follows a single checked route and never asks the user to choose.
-After a specialized result returns, the planner/reviewer still makes the protocol
+After a specialized result returns, the planner/verifier still makes the protocol
 decision unless the frozen contract explicitly says otherwise.
 
 Never put generic `/review` in a handoff packet: that command intentionally opens
 a specialized-review selector. The checker rejects it in every mode.
 
-## Planner/reviewer decision
+### Recover from an accidental specialized-review selector
 
-The reviewer inspects the relevant diff and material evidence rather than
+An unexpected selector is a routing failure, not a user decision. The user does
+not choose Bugbot or Security Review; they send the recovery sentence from
+`.model-handoff/recover-review-selector.txt`. The model cancels generic `/review`, runs
+the project snapshot, preserves the frozen contract, and follows the recorded
+`Verification mode`. If an `EXECUTION_TO_VERIFY` packet has a missing or invalid
+mode, a capable planner/verifier repairs only that routing field to `independent`,
+runs the checker again, and continues. It never infers `bugbot` or `security`.
+
+## Planner/verifier decision
+
+The verifier inspects the relevant diff and material evidence rather than
 trusting the packet. It chooses one outcome:
 
 - `ACCEPT_STAGE`: gates pass; record acceptance and define the next bounded stage;
@@ -327,7 +337,7 @@ trusting the packet. It chooses one outcome:
 - `COMPLETE`: all implementation, evidence, records, cleanup, and release gates
   pass.
 
-If work returns to implementation, use `REVIEW_TO_EXECUTE`. For completion, leave
+If work returns to implementation, use `VERIFY_TO_EXECUTE`. For completion, leave
 the packet `COMPLETE` or `IDLE` and name the exact resumption condition.
 
 For behavioral `REFINE`, avoid prescribing only a line edit. State the violated
@@ -353,21 +363,21 @@ irrelevant adversarial variants.
 
 1. Tell the outgoing model: `我要切换模型。请按项目规则完成并检查交接，然后停止。`
 2. Wait until the helper check passes and it reports a recoverable state.
-3. If `Review mode` is `self`, do not switch models: tell the current capable
-   model to perform the recorded lightweight review. Otherwise change to the
+3. If `Verification mode` is `self`, do not switch models: tell the current capable
+   model to perform the recorded lightweight verification. Otherwise change to the
    reported `Recommended capability`: normally `economical` for bounded
-   implementation and `capable` for independent review or difficult work.
+   implementation and `capable` for independent verification or difficult work.
 4. Tell the incoming model: `请按项目交接继续。` It reads `To role` from the
    bootstrap. Use a role-specific prompt only to override the recorded route.
 5. Require the incoming role to begin from the bounded snapshot and report a
    conflict before editing if records do not agree.
 
-Avoid replacing the incoming phrase with a bare `review` or `审核`. Those words can
-route to an optional review skill instead of the protocol milestone decision.
+The ordinary incoming phrase needs no verification keyword. A bare `/review` is
+reserved for the optional specialized skill and is never a protocol continuation.
 
 ## Privacy before publishing a real packet
 
-Review live handoffs for:
+Verify live handoffs for:
 
 - absolute home/workspace paths and usernames;
 - private repository, branch, issue, customer, or service names;
@@ -409,14 +419,14 @@ promotion workflow for a protocol-generic candidate:
    rules, templates, checker, prompts, and documentation that actually need it,
    and add a regression test that fails without the correction.
 5. Run protocol validation and all tests. Push the candidate branch if remote
-   backup or review is useful; review the diff and evidence before merging `main`.
+   backup or independent verification is useful; verify the diff and evidence before merging `main`.
 6. Pull the accepted source revision locally, run the installer in dry-run mode
    against the originating project, and manually merge only relevant `differs`.
    Never auto-overwrite project-specific rules or live state.
 7. Mark feedback `RESOLVED` only after a later real switch proves the correction;
    otherwise keep it `OPEN` or mark the proposal `REJECTED` with the reason.
 
-GitHub is the shared source and review history, not a runtime dependency. Installed
+GitHub is the shared source and change history, not a runtime dependency. Installed
 projects continue locally. A maintained local clone normally updates with
 `git pull`; downloading a new archive for every task is unnecessary.
 
@@ -425,23 +435,21 @@ For a project without a maintained protocol clone, run
 fetches one upstream revision into a temporary directory and delegates to the
 same dry-run-first, no-overwrite installer. A new project can begin from the
 copy-ready repository instruction or standalone bootstrap in
-`docs/REMOTE_INSTALL.md`. Existing `differs` always require review; the updater
+`docs/REMOTE_INSTALL.md`. Existing `differs` always require deliberate merging; the updater
 does not infer that live state or project-specific rules are disposable.
 
-### Upgrade from protocol 0.4 or earlier
+### Upgrade from protocol 0.5 or earlier
 
 Update the installed rule, playbook, template, and `.model-handoff/handoff.py`
-together. Then update the live `MODEL_HANDOFF.md` to protocol `0.5`. Ordinary
-capable-model output may use `Review mode: self` only under the eligibility rules
-above; existing `inline` packets now explicitly require a separate capable
-context. Protocol 0.3 packets must also add `Recommended capability`: use
-`capable` whenever `To role` is
-`planner/reviewer`; for `implementer`, choose `economical` for most bounded work
-or `capable` for judgment-heavy work. Every `high-risk` contract requires
-`capable` and an explicit coverage matrix or reasoned inapplicability record.
-Protocol 0.2 packets must add
-`Review mode`: use `inline` for independent `EXECUTION_TO_REVIEW` and `none` for
-non-review states. Run the new checker before the next switch. A partial upgrade
+together. Then update the live `MODEL_HANDOFF.md` to protocol `0.6`. Rename
+`planner/reviewer` to `planner/verifier`, `Review mode` to `Verification mode`,
+`inline` to `independent`, `EXECUTION_TO_REVIEW` to `EXECUTION_TO_VERIFY`, and
+`REVIEW_TO_EXECUTE` to `VERIFY_TO_EXECUTE`. Ordinary capable-model output may
+use `self` only under the eligibility rules above. Use `capable` whenever `To
+role` is `planner/verifier`; for `implementer`, choose `economical` for most
+bounded work or `capable` for judgment-heavy work. Every `high-risk` contract
+requires `capable` and an explicit coverage matrix or reasoned inapplicability
+record. Run the new checker before the next switch. A partial upgrade
 intentionally fails rather than guessing a route.
 
 ## Reuse in another project
@@ -449,4 +457,4 @@ intentionally fails rather than guessing a route.
 Run the installer or copy the two rules, helper, playbook, and blank templates. Customize
 only canonical plan/status/report paths and the project's approval boundaries.
 Keep the handoff state machine, required fields, source-of-truth order, and
-bidirectional review loop stable.
+bidirectional verification loop stable.

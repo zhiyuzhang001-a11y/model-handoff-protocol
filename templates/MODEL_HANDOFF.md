@@ -1,12 +1,12 @@
 # Current model handoff
 
-- Protocol version: `0.5`
+- Protocol version: `0.6`
 - Handoff ID: `<date-or-sequence>-<short-purpose>`
-- State: `PLAN_TO_EXECUTE | EXECUTION_TO_REVIEW | REVIEW_TO_EXECUTE | BLOCKED_TO_DECIDE | COMPLETE | IDLE`
-- From role: `planner/reviewer | implementer`
-- To role: `planner/reviewer | implementer`
+- State: `PLAN_TO_EXECUTE | EXECUTION_TO_VERIFY | VERIFY_TO_EXECUTE | BLOCKED_TO_DECIDE | COMPLETE | IDLE`
+- From role: `planner/verifier | implementer`
+- To role: `planner/verifier | implementer`
 - Recommended capability: `economical | capable`
-- Review mode: `self | inline | bugbot | security | none`
+- Verification mode: `self | independent | bugbot | security | none`
 - Contract depth: `thin | standard | high-risk`
 - Last verified: `<YYYY-MM-DDTHH:MM:SSZ>`
 - Active milestone: `<relative path#exact heading, or none>`
@@ -26,7 +26,7 @@
 ## Acceptance and required evidence
 
 - `<Exact test, dataset, threshold, artifact, cleanup, or documentation gate>`
-- Root invariant: `<required for REVIEW_TO_EXECUTE; otherwise invariant or none>`
+- Root invariant: `<required for VERIFY_TO_EXECUTE; otherwise invariant or none>`
 - Correction variants: `<behavioral reproducer plus adjacent case; for a non-behavioral correction, not applicable with reason; otherwise none>`
 - High-risk coverage matrix: `<all applicable dimensions, omitted reasons, and deterministic hook/barrier; or not applicable>`
 
@@ -84,8 +84,9 @@
 
 ## Requested response from the next role
 
-`<Implement, review, choose, diagnose, approve, or close—with one precise result
-such as ACCEPT_STAGE_1 or a named defect plus acceptance delta. When Review mode
-is self, keep the capable model in this context for a lightweight conformance
-review; inline requires a separate capable context. For bugbot or security, name exactly /review-bugbot or /review-security. Never use generic /review or ask the
-user to select a reviewer.>`
+`<Implement, verify, choose, diagnose, approve, or close—with one precise result
+such as ACCEPT_STAGE_1 or a named defect plus acceptance delta. When Verification
+mode is self, keep the capable model in this context for a lightweight conformance
+check; independent requires a separate capable context. Only a preselected bugbot
+or security mode may name exactly /review-bugbot or /review-security. Never use
+generic /review or ask the user to select a reviewer.>`

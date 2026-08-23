@@ -48,22 +48,32 @@ class InstallerTests(unittest.TestCase):
             updater = (target / ".model-handoff/update.py").read_text(
                 encoding="utf-8"
             )
+            recovery = (
+                target / ".model-handoff/recover-review-selector.txt"
+            ).read_text(encoding="utf-8")
         self.assertIn("project-specific | protocol-generic | unclear", feedback)
         self.assertIn("Never push an unreviewed target-project rule", playbook)
-        self.assertIn("Milestone review depth versus specialized review", playbook)
-        self.assertIn("review before `main`", rule)
+        self.assertIn("Milestone verification depth versus specialized review", playbook)
+        self.assertIn("independently verify before `main`", rule)
         self.assertIn("Never ask the user to choose a reviewer", rule)
+        self.assertIn("return to the project handoff", rule)
+        self.assertIn("never infer a specialized gate", rule)
         self.assertIn("economical implementers", rule)
         self.assertIn("second post-fix failure", rule)
         self.assertIn("Capability-aware routing", playbook)
         self.assertIn("deterministic hooks/barriers", execution_rule)
-        self.assertIn("Review mode: `self | inline | bugbot | security | none`", handoff)
+        self.assertIn(
+            "Verification mode: `self | independent | bugbot | security | none`",
+            handoff,
+        )
         self.assertIn("Recommended capability: `economical | capable`", handoff)
         self.assertIn("name exactly /review-bugbot or /review-security", handoff)
         self.assertIn("High-risk coverage matrix", handoff)
         self.assertIn("Execution routing", plan)
         self.assertIn("REPOSITORY_URL", updater)
         self.assertIn("check=False", updater)
+        self.assertIn("不要选择审查器", recovery)
+        self.assertIn("Verification mode", recovery)
 
     def test_apply_never_overwrites_existing_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

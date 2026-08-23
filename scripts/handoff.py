@@ -12,33 +12,33 @@ from pathlib import Path
 from typing import Any
 
 
-PROTOCOL_VERSION = "0.5"
+PROTOCOL_VERSION = "0.6"
 VALID_STATES = {
     "PLAN_TO_EXECUTE",
-    "EXECUTION_TO_REVIEW",
-    "REVIEW_TO_EXECUTE",
+    "EXECUTION_TO_VERIFY",
+    "VERIFY_TO_EXECUTE",
     "BLOCKED_TO_DECIDE",
     "COMPLETE",
     "IDLE",
 }
-VALID_ROLES = {"planner/reviewer", "implementer"}
+VALID_ROLES = {"planner/verifier", "implementer"}
 VALID_CAPABILITIES = {"economical", "capable"}
 VALID_CONTRACT_DEPTHS = {"thin", "standard", "high-risk"}
-VALID_REVIEW_MODES = {"self", "inline", "bugbot", "security", "none"}
+VALID_VERIFICATION_MODES = {"self", "independent", "bugbot", "security", "none"}
 EXPECTED_TARGET_ROLE = {
     "PLAN_TO_EXECUTE": "implementer",
-    "REVIEW_TO_EXECUTE": "implementer",
-    "EXECUTION_TO_REVIEW": "planner/reviewer",
-    "BLOCKED_TO_DECIDE": "planner/reviewer",
-    "COMPLETE": "planner/reviewer",
-    "IDLE": "planner/reviewer",
+    "VERIFY_TO_EXECUTE": "implementer",
+    "EXECUTION_TO_VERIFY": "planner/verifier",
+    "BLOCKED_TO_DECIDE": "planner/verifier",
+    "COMPLETE": "planner/verifier",
+    "IDLE": "planner/verifier",
 }
 EXPECTED_SOURCE_ROLE = {
-    "PLAN_TO_EXECUTE": "planner/reviewer",
-    "REVIEW_TO_EXECUTE": "planner/reviewer",
-    "EXECUTION_TO_REVIEW": "implementer",
-    "COMPLETE": "planner/reviewer",
-    "IDLE": "planner/reviewer",
+    "PLAN_TO_EXECUTE": "planner/verifier",
+    "VERIFY_TO_EXECUTE": "planner/verifier",
+    "EXECUTION_TO_VERIFY": "implementer",
+    "COMPLETE": "planner/verifier",
+    "IDLE": "planner/verifier",
 }
 REQUIRED_FILES = (
     Path(".cursor/rules/model-handoff.mdc"),
@@ -55,7 +55,7 @@ REQUIRED_METADATA = (
     "From role",
     "To role",
     "Recommended capability",
-    "Review mode",
+    "Verification mode",
     "Contract depth",
     "Last verified",
     "Active milestone",
@@ -92,7 +92,7 @@ BOOTSTRAP_SECTIONS = (
     "Owned live resources",
     "Requested response from the next role",
 )
-REVIEW_BOOTSTRAP_SECTIONS = (
+VERIFICATION_BOOTSTRAP_SECTIONS = (
     "Changes and repository state",
     "Commands and results",
     "Decisions and rationale",
@@ -219,8 +219,8 @@ def _is_bare_inapplicable(value: str) -> bool:
 
 
 def _validate_review_correction(handoff: MarkdownRecord, errors: list[str]) -> None:
-    """Require actionable correction data only when review returns work."""
-    if handoff.metadata.get("State") != "REVIEW_TO_EXECUTE":
+    """Require actionable correction data only when verification returns work."""
+    if handoff.metadata.get("State") != "VERIFY_TO_EXECUTE":
         return
 
     acceptance = _bullet_fields(
@@ -236,13 +236,13 @@ def _validate_review_correction(handoff: MarkdownRecord, errors: list[str]) -> N
     for fields, key in required:
         value = fields.get(key, "")
         if _is_placeholder(value):
-            errors.append(f"REVIEW_TO_EXECUTE requires correction field: {key}")
+            errors.append(f"VERIFY_TO_EXECUTE requires correction field: {key}")
         elif key in {
             "Root invariant",
             "Correction variants",
         } and _is_bare_inapplicable(value):
             errors.append(
-                f"REVIEW_TO_EXECUTE {key} cannot be bare none/not applicable; "
+                f"VERIFY_TO_EXECUTE {key} cannot be bare none/not applicable; "
                 "state the invariant or give a non-behavioral reason"
             )
 
@@ -359,41 +359,43 @@ def inspect_project(root: Path) -> dict[str, Any]:
     expected_source = EXPECTED_SOURCE_ROLE.get(state)
     if expected_source and handoff.metadata.get("From role") != expected_source:
         errors.append(f"state {state} must originate from role {expected_source}")
-    if handoff.metadata.get("To role") == "planner/reviewer" and capability != "capable":
-        errors.append("planner/reviewer handoff requires Recommended capability capable")
+    if handoff.metadata.get("To role") == "planner/verifier" and capability != "capable":
+        errors.append("planner/verifier handoff requires Recommended capability capable")
     if handoff.metadata.get("Contract depth") == "high-risk" and capability != "capable":
         errors.append("high-risk handoff requires Recommended capability capable")
-    review_mode = handoff.metadata.get("Review mode", "")
-    if review_mode not in VALID_REVIEW_MODES:
-        errors.append(f"invalid review mode: {review_mode or 'missing'}")
-    elif state == "EXECUTION_TO_REVIEW":
-        if review_mode == "none":
+    verification_mode = handoff.metadata.get("Verification mode", "")
+    if verification_mode not in VALID_VERIFICATION_MODES:
+        errors.append(f"invalid verification mode: {verification_mode or 'missing'}")
+    elif state == "EXECUTION_TO_VERIFY":
+        if verification_mode == "none":
             errors.append(
-                "EXECUTION_TO_REVIEW requires Review mode self, inline, bugbot, or security"
+                "EXECUTION_TO_VERIFY requires Verification mode self, independent, bugbot, or security"
             )
-    elif review_mode != "none":
-        errors.append(f"state {state or 'missing'} requires Review mode none")
-    if review_mode == "self" and handoff.metadata.get("Contract depth") == "high-risk":
-        errors.append("high-risk work cannot use Review mode self; use independent review")
+    elif verification_mode != "none":
+        errors.append(f"state {state or 'missing'} requires Verification mode none")
+    if verification_mode == "self" and handoff.metadata.get("Contract depth") == "high-risk":
+        errors.append("high-risk work cannot use Verification mode self; use independent verification")
 
     requested_response = handoff.sections.get("Requested response from the next role", "")
     specialized_command = {
         "bugbot": "/review-bugbot",
         "security": "/review-security",
-    }.get(review_mode)
+    }.get(verification_mode)
     if re.search(r"/review(?![-\w])", requested_response):
         errors.append(
-            "generic /review is ambiguous; use Review mode self/inline or an exact "
+            "generic /review is ambiguous; use Verification mode self/independent or an exact "
             "/review-bugbot or /review-security command"
         )
     if specialized_command and specialized_command not in requested_response:
         errors.append(
-            f"Review mode {review_mode} requires {specialized_command} in requested response"
+            f"Verification mode {verification_mode} requires {specialized_command} in requested response"
         )
-    if review_mode in {"self", "inline"} and re.search(
+    if verification_mode in {"self", "independent"} and re.search(
         r"/review-(?:bugbot|security)", requested_response
     ):
-        errors.append(f"Review mode {review_mode} conflicts with a specialized review request")
+        errors.append(
+            f"Verification mode {verification_mode} conflicts with a specialized gate request"
+        )
     working_tree = handoff.metadata.get("Working tree", "").lower()
     if working_tree not in {"clean", "dirty"}:
         errors.append("Working tree must be clean or dirty")
@@ -502,6 +504,20 @@ def render_snapshot(result: dict[str, Any]) -> str:
     if handoff:
         for key in REQUIRED_METADATA:
             lines.append(f"- {key}: {handoff.metadata.get(key, 'missing')}")
+        lines.append(
+            "- Mandatory routing: verification means the recorded protocol gate, "
+            "not generic /review. Never ask the user to select a reviewer. Run a "
+            "specialized gate only for an already-recorded bugbot or security mode."
+        )
+        if (
+            handoff.metadata.get("State") == "EXECUTION_TO_VERIFY"
+            and handoff.metadata.get("Verification mode")
+            not in VALID_VERIFICATION_MODES - {"none"}
+        ):
+            lines.append(
+                "- Routing recovery: repair Verification mode to independent, "
+                "rerun the checker, and preserve every other contract field."
+            )
     if git.get("available"):
         lines.extend(
             (
@@ -525,12 +541,12 @@ def render_snapshot(result: dict[str, Any]) -> str:
     if handoff:
         headings = list(BOOTSTRAP_SECTIONS)
         if (
-            handoff.metadata.get("To role") == "planner/reviewer"
+            handoff.metadata.get("To role") == "planner/verifier"
             or handoff.metadata.get("State")
-            in {"EXECUTION_TO_REVIEW", "BLOCKED_TO_DECIDE", "COMPLETE"}
+            in {"EXECUTION_TO_VERIFY", "BLOCKED_TO_DECIDE", "COMPLETE"}
         ):
             insertion = headings.index("Risks, deviations, and unknowns")
-            headings[insertion:insertion] = REVIEW_BOOTSTRAP_SECTIONS
+            headings[insertion:insertion] = VERIFICATION_BOOTSTRAP_SECTIONS
         for heading in headings:
             content = handoff.sections.get(heading, "")
             lines.append(f"## {heading}")

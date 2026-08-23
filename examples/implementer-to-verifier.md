@@ -1,14 +1,14 @@
-# Example: implementer to reviewer
+# Example: implementer to verifier
 
 This is an abbreviated teaching example, not a valid live packet. Start from
 `templates/MODEL_HANDOFF.md` and complete every required field.
 
-- Protocol version: `0.5`
-- Review mode: `inline`
+- Protocol version: `0.6`
+- Verification mode: `independent`
 - Handoff ID: `2026-01-15-m4-cache-key-review`
-- State: `EXECUTION_TO_REVIEW`
+- State: `EXECUTION_TO_VERIFY`
 - From role: `implementer`
-- To role: `planner/reviewer`
+- To role: `planner/verifier`
 - Recommended capability: `capable`
 - Contract depth: `standard`
 - Last verified: `2026-01-15T11:10:00Z`

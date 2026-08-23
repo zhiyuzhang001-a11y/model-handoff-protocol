@@ -17,13 +17,13 @@ from scripts.install import install
 
 HANDOFF = """# Current model handoff
 
-- Protocol version: `0.5`
+- Protocol version: `0.6`
 - Handoff ID: `2026-08-22-m1-execute`
 - State: `PLAN_TO_EXECUTE`
-- From role: `planner/reviewer`
+- From role: `planner/verifier`
 - To role: `implementer`
 - Recommended capability: `economical`
-- Review mode: `none`
+- Verification mode: `none`
 - Contract depth: `thin`
 - Last verified: `2026-08-22T10:00:00Z`
 - Active milestone: `docs/IMPLEMENTATION_PLAN.md#M1`
@@ -126,7 +126,7 @@ class HandoffTests(unittest.TestCase):
 
     def test_parser_separates_metadata_and_sections(self) -> None:
         record = parse_markdown(HANDOFF)
-        self.assertEqual("0.5", record.metadata["Protocol version"])
+        self.assertEqual("0.6", record.metadata["Protocol version"])
         self.assertIn("Exact next action", record.sections)
 
     def test_parser_ignores_headings_inside_fenced_evidence(self) -> None:
@@ -162,15 +162,15 @@ class HandoffTests(unittest.TestCase):
         self.assertIn("Context delta and evidence pointers", snapshot)
         self.assertIn("Observed", snapshot)
 
-    def test_review_snapshot_adds_diff_commands_and_decisions(self) -> None:
+    def test_verification_snapshot_adds_diff_commands_decisions_and_route(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
             review = (
-                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
-                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
-                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+                .replace("- From role: `planner/verifier`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/verifier`")
                 .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
-                .replace("- Review mode: `none`", "- Review mode: `inline`")
+                .replace("- Verification mode: `none`", "- Verification mode: `independent`")
             )
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
             result = inspect_project(target)
@@ -179,43 +179,65 @@ class HandoffTests(unittest.TestCase):
         self.assertIn("## Changes and repository state", snapshot)
         self.assertIn("## Commands and results", snapshot)
         self.assertIn("## Decisions and rationale", snapshot)
+        self.assertIn("Mandatory routing: verification means", snapshot)
+        self.assertIn("not generic /review", snapshot)
+        self.assertIn("Never ask the user to select a reviewer", snapshot)
 
-    def test_execution_review_requires_explicit_review_mode(self) -> None:
+    def test_execution_verification_requires_explicit_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
             review = (
-                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
-                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
-                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+                .replace("- From role: `planner/verifier`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/verifier`")
                 .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
             )
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
             errors = inspect_project(target)["errors"]
-        self.assertTrue(any("requires Review mode" in item for item in errors))
+        self.assertTrue(any("requires Verification mode" in item for item in errors))
 
-    def test_capable_thin_work_allows_same_context_self_review(self) -> None:
+    def test_invalid_verification_mode_snapshot_has_deterministic_recovery(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            invalid = (
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+                .replace("- From role: `planner/verifier`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/verifier`")
+                .replace(
+                    "- Recommended capability: `economical`",
+                    "- Recommended capability: `capable`",
+                )
+            )
+            (target / "MODEL_HANDOFF.md").write_text(invalid, encoding="utf-8")
+            result = inspect_project(target)
+            snapshot = render_snapshot(result)
+        self.assertTrue(any("requires Verification mode" in item for item in result["errors"]))
+        self.assertIn("repair Verification mode to independent", snapshot)
+        self.assertIn("preserve every other contract field", snapshot)
+
+    def test_capable_thin_work_allows_same_context_self_verification(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
             review = (
-                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
-                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
-                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+                .replace("- From role: `planner/verifier`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/verifier`")
                 .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
-                .replace("- Review mode: `none`", "- Review mode: `self`")
+                .replace("- Verification mode: `none`", "- Verification mode: `self`")
             )
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
             result = inspect_project(target)
         self.assertEqual([], result["errors"])
 
-    def test_high_risk_work_rejects_same_context_self_review(self) -> None:
+    def test_high_risk_work_rejects_same_context_self_verification(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
             review = (
-                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
-                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
-                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+                .replace("- From role: `planner/verifier`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/verifier`")
                 .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
-                .replace("- Review mode: `none`", "- Review mode: `self`")
+                .replace("- Verification mode: `none`", "- Verification mode: `self`")
                 .replace("- Contract depth: `thin`", "- Contract depth: `high-risk`")
                 .replace(
                     "Run the focused test and store its summary.",
@@ -226,17 +248,17 @@ class HandoffTests(unittest.TestCase):
             )
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
             errors = inspect_project(target)["errors"]
-        self.assertTrue(any("cannot use Review mode self" in item for item in errors))
+        self.assertTrue(any("cannot use Verification mode self" in item for item in errors))
 
-    def test_self_review_rejects_specialized_review_command(self) -> None:
+    def test_self_verification_rejects_specialized_command(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
             review = (
-                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
-                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
-                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+                .replace("- From role: `planner/verifier`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/verifier`")
                 .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
-                .replace("- Review mode: `none`", "- Review mode: `self`")
+                .replace("- Verification mode: `none`", "- Verification mode: `self`")
                 .replace(
                     "Implement and request ACCEPT_STAGE_1.",
                     "Run /review-security and request ACCEPT_STAGE_1.",
@@ -244,17 +266,17 @@ class HandoffTests(unittest.TestCase):
             )
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
             errors = inspect_project(target)["errors"]
-        self.assertTrue(any("Review mode self conflicts" in item for item in errors))
+        self.assertTrue(any("Verification mode self conflicts" in item for item in errors))
 
-    def test_specialized_review_mode_requires_matching_exact_command(self) -> None:
+    def test_specialized_verification_mode_requires_matching_exact_command(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
             review = (
-                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
-                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
-                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+                .replace("- From role: `planner/verifier`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/verifier`")
                 .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
-                .replace("- Review mode: `none`", "- Review mode: `security`")
+                .replace("- Verification mode: `none`", "- Verification mode: `security`")
             )
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
             errors = inspect_project(target)["errors"]
@@ -267,25 +289,25 @@ class HandoffTests(unittest.TestCase):
         self.assertTrue(any("requires /review-security" in item for item in errors))
         self.assertEqual([], accepted_errors)
 
-    def test_nonreview_state_rejects_active_review_mode(self) -> None:
+    def test_nonverification_state_rejects_active_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
             invalid = HANDOFF.replace(
-                "- Review mode: `none`", "- Review mode: `inline`"
+                "- Verification mode: `none`", "- Verification mode: `independent`"
             )
             (target / "MODEL_HANDOFF.md").write_text(invalid, encoding="utf-8")
             errors = inspect_project(target)["errors"]
-        self.assertTrue(any("requires Review mode none" in item for item in errors))
+        self.assertTrue(any("requires Verification mode none" in item for item in errors))
 
     def test_generic_review_command_is_rejected_as_ambiguous(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
             review = (
-                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
-                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
-                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+                .replace("- From role: `planner/verifier`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/verifier`")
                 .replace("- Recommended capability: `economical`", "- Recommended capability: `capable`")
-                .replace("- Review mode: `none`", "- Review mode: `inline`")
+                .replace("- Verification mode: `none`", "- Verification mode: `independent`")
                 .replace(
                     "Implement and request ACCEPT_STAGE_1.",
                     "Run /review and request ACCEPT_STAGE_1.",
@@ -318,20 +340,20 @@ class HandoffTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
             invalid = HANDOFF.replace(
-                "- To role: `implementer`", "- To role: `planner/reviewer`"
+                "- To role: `implementer`", "- To role: `planner/verifier`"
             )
             (target / "MODEL_HANDOFF.md").write_text(invalid, encoding="utf-8")
             errors = inspect_project(target)["errors"]
         self.assertTrue(any("must target role implementer" in item for item in errors))
 
-    def test_planner_reviewer_requires_capable_recommendation(self) -> None:
+    def test_planner_verifier_requires_capable_recommendation(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
             review = (
-                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_REVIEW")
-                .replace("- From role: `planner/reviewer`", "- From role: `implementer`")
-                .replace("- To role: `implementer`", "- To role: `planner/reviewer`")
-                .replace("- Review mode: `none`", "- Review mode: `inline`")
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+                .replace("- From role: `planner/verifier`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/verifier`")
+                .replace("- Verification mode: `none`", "- Verification mode: `independent`")
             )
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
             errors = inspect_project(target)["errors"]
@@ -365,10 +387,10 @@ class HandoffTests(unittest.TestCase):
             valid_errors = inspect_project(target)["errors"]
         self.assertEqual([], valid_errors)
 
-    def test_review_to_execute_requires_actionable_correction_contract(self) -> None:
+    def test_verify_to_execute_requires_actionable_correction_contract(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
-            review = HANDOFF.replace("PLAN_TO_EXECUTE", "REVIEW_TO_EXECUTE")
+            review = HANDOFF.replace("PLAN_TO_EXECUTE", "VERIFY_TO_EXECUTE")
             (target / "MODEL_HANDOFF.md").write_text(review, encoding="utf-8")
             errors = inspect_project(target)["errors"]
         self.assertTrue(any("Root invariant" in item for item in errors))
@@ -376,10 +398,10 @@ class HandoffTests(unittest.TestCase):
         self.assertTrue(any("Local implementation discretion" in item for item in errors))
         self.assertTrue(any("Rejected shallow fix" in item for item in errors))
 
-    def test_nonbehavioral_review_correction_may_explain_no_variants(self) -> None:
+    def test_nonbehavioral_verification_correction_may_explain_no_variants(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
-            review = HANDOFF.replace("PLAN_TO_EXECUTE", "REVIEW_TO_EXECUTE")
+            review = HANDOFF.replace("PLAN_TO_EXECUTE", "VERIFY_TO_EXECUTE")
             review = review.replace(
                 "Run the focused test and store its summary.",
                 "Run the focused test and store its summary.\n\n"

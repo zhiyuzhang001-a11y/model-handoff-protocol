@@ -57,6 +57,7 @@ python3 scripts/install.py /你的/项目路径 --apply
 
 安装器不会覆盖已有文件，也不会修改全局Codex、编辑器或Agent配置。
 它会同时安装无依赖的`.model-handoff/handoff.py`检查器。
+也会安装`.model-handoff/recover-review-selector.txt`，保存偶发二选一时的一句恢复指令。
 还会安装`.model-handoff/update.py`；以后不必手工再次克隆，需要检查上游更新时只需运行：
 
 ```bash
@@ -90,21 +91,31 @@ python3 .model-handoff/handoff.py snapshot .
 ```
 
 新模型会从交接中的`To role`自动判断是继续执行还是进行审查。
-交接包会明确写入`Review mode: self | inline | bugbot | security | none`。每个阶段都要
+如果仍然偶发Bugbot/Security二选一，不要选1或2，只需发送：
+
+```text
+不要选择审查器。退出通用/review，读取项目交接snapshot，按Verification mode继续。
+```
+
+这是路由纠正，不是新任务；模型必须保留原合同。如果`EXECUTION_TO_VERIFY`的
+模式缺失或损坏，确定性安全回退是`independent`，绝不猜测专项审查。
+
+交接包会明确写入`Verification mode: self | independent | bugbot | security | none`。每个阶段都要
 验收，但不一定切换模型：高级模型完成`thin`或`standard`工作、全部门禁通过且没有偏离、
 边界变化或独立门禁时，用`self`在同一上下文轻量复核；经济模型产出、`high-risk`工作、
-重大偏离或明确独立门禁使用`inline`，切换到独立高级模型或上下文。专项审查才使用
-`bugbot`或`security`。检查器会拒绝缺失或冲突的模式，因此不应再让你二选一。
+重大偏离或明确独立门禁使用`independent`，切换到独立高级模型或上下文。专项审查才使用
+`bugbot`或`security`。普通阶段验收专门使用verification命名，与会弹出二选一的通用
+`/review`技能分开。检查器会拒绝缺失或冲突的模式。
 
 交接还会写入`Recommended capability: economical | capable`，由旧模型直接告诉你下一步
-选择经济模型还是高级模型。`planner/reviewer`必须使用`capable`；`implementer`默认选择
+选择经济模型还是高级模型。`planner/verifier`必须使用`capable`；`implementer`默认选择
 `economical`，判断密集的工作可选择`capable`；所有`high-risk`合同都必须选择`capable`
 并明确记录覆盖矩阵。
 
-从协议0.4或更早版本升级时，应同时合并规则、Playbook、模板和
-`.model-handoff/handoff.py`，然后把实时`MODEL_HANDOFF.md`改为0.5。原有`inline`现在
-明确表示独立高级上下文；只有满足普通任务条件时才改用`self`。更早版本还需补齐能力和
-复核字段。检查器会拒绝部分升级，避免猜测。
+从协议0.5或更早版本升级时，应同时合并规则、Playbook、模板和
+`.model-handoff/handoff.py`，然后把实时`MODEL_HANDOFF.md`改为0.6。同时把
+`planner/reviewer`改为`planner/verifier`、`Review mode`改为`Verification mode`、
+`inline`改为`independent`，并更新两个执行/验收状态。检查器会拒绝部分升级。
 
 切换前告诉旧模型：
 
@@ -123,7 +134,7 @@ python3 .model-handoff/handoff.py snapshot .
 切换到规划/复核模型：
 
 ```text
-你现在承担planner/reviewer角色。先运行交接snapshot，再按交接要求的独立程度检查Git diff和证据，
+你现在承担planner/verifier角色。先运行交接snapshot，再按交接要求的独立程度检查Git diff和证据，
 然后明确选择ACCEPT_STAGE、REFINE、BLOCKED_DECISION或COMPLETE。
 如需返工，写出边界、验收、停止条件和唯一第一步。
 ```

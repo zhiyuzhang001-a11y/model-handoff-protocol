@@ -3,12 +3,12 @@
 This is an abbreviated teaching example, not a valid live packet. Start from
 `templates/MODEL_HANDOFF.md` and complete every required field.
 
-- Protocol version: `0.5`
-- Review mode: `none`
+- Protocol version: `0.6`
+- Verification mode: `none`
 - Handoff ID: `2026-01-16-m5-runtime-choice`
 - State: `BLOCKED_TO_DECIDE`
 - From role: `implementer`
-- To role: `planner/reviewer`
+- To role: `planner/verifier`
 - Recommended capability: `capable`
 - Contract depth: `high-risk`
 - Last verified: `2026-01-16T15:00:00Z`
