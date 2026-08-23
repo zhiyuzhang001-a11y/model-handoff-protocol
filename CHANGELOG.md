@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a persistent `active | paused` control file so users can leave the contract
+  at any time without deleting protocol files, keep paused bootstrap output
+  minimal, and resume only through an explicit user instruction and revalidation.
+
 - Rename ordinary stage review to protocol 0.6 verification (`planner/verifier`,
   `Verification mode`, `EXECUTION_TO_VERIFY`, and `VERIFY_TO_EXECUTE`) so it no
   longer collides semantically with the optional generic `/review` skill.

@@ -21,6 +21,7 @@ INSTALLS = (
     (Path("scripts/handoff.py"), Path(".model-handoff/handoff.py")),
     (Path("scripts/bootstrap.py"), Path(".model-handoff/update.py")),
     (Path("templates/HANDOFF_FEEDBACK.md"), Path(".model-handoff/FEEDBACK.md")),
+    (Path("templates/PROTOCOL_CONTROL.md"), Path(".model-handoff/CONTROL.md")),
     (
         Path("prompts/recover-review-selector.txt"),
         Path(".model-handoff/recover-review-selector.txt"),

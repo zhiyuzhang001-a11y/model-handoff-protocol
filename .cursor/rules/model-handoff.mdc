@@ -8,7 +8,8 @@ alwaysApply: true
 - Roles, not model names, grant authority. Route most bounded, reversible,
   test-protected work to economical implementers; use capable models for
   planning/verification and judgment-heavy or high-risk implementation.
-- Bootstrap first with `python3 .model-handoff/handoff.py snapshot .`; if the
+- Read `.model-handoff/CONTROL.md` first. On explicit user exit, set `Mode: paused` and retain every protocol file; while paused, skip this contract except safe control/resume handling. Only explicit user resume sets `active`.
+- When active, bootstrap first with `python3 .model-handoff/handoff.py snapshot .`; if the
   helper is unavailable, read `STATUS.md`, `MODEL_HANDOFF.md`, and Git state.
   Expand only the exact plan/report sections named as required context.
 - Do not edit until you can state the objective, frozen scope, completed evidence,

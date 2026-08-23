@@ -25,6 +25,7 @@ VALID_ROLES = {"planner/verifier", "implementer"}
 VALID_CAPABILITIES = {"economical", "capable"}
 VALID_CONTRACT_DEPTHS = {"thin", "standard", "high-risk"}
 VALID_VERIFICATION_MODES = {"self", "independent", "bugbot", "security", "none"}
+VALID_PROTOCOL_MODES = {"active", "paused"}
 EXPECTED_TARGET_ROLE = {
     "PLAN_TO_EXECUTE": "implementer",
     "VERIFY_TO_EXECUTE": "implementer",
@@ -47,6 +48,7 @@ REQUIRED_FILES = (
     Path("STATUS.md"),
     Path("docs/IMPLEMENTATION_PLAN.md"),
     Path("docs/MODEL_HANDOFF_PLAYBOOK.md"),
+    Path(".model-handoff/CONTROL.md"),
 )
 REQUIRED_METADATA = (
     "Protocol version",
@@ -303,6 +305,24 @@ def inspect_project(root: Path) -> dict[str, Any]:
         if not (root / relative).is_file():
             errors.append(f"missing required file: {relative}")
 
+    control_path = root / ".model-handoff/CONTROL.md"
+    control: MarkdownRecord | None = None
+    protocol_mode = "missing"
+    if control_path.is_file():
+        control = parse_markdown(control_path.read_text(encoding="utf-8"))
+        protocol_mode = control.metadata.get("Mode", "")
+        if protocol_mode not in VALID_PROTOCOL_MODES:
+            errors.append(f"invalid protocol control mode: {protocol_mode or 'missing'}")
+    if protocol_mode == "paused":
+        return {
+            "root": root,
+            "errors": errors,
+            "warnings": warnings,
+            "control": control,
+            "protocol_mode": protocol_mode,
+            "git": observed_git(root),
+        }
+
     handoff_path = root / "MODEL_HANDOFF.md"
     status_path = root / "STATUS.md"
     if not handoff_path.is_file() or not status_path.is_file():
@@ -493,6 +513,8 @@ def inspect_project(root: Path) -> dict[str, Any]:
         "handoff": handoff,
         "status": status,
         "git": git,
+        "control": control,
+        "protocol_mode": protocol_mode,
     }
 
 
@@ -501,6 +523,18 @@ def render_snapshot(result: dict[str, Any]) -> str:
     status: MarkdownRecord | None = result.get("status")
     git = result.get("git", {"available": False})
     lines = [f"# Model handoff bootstrap · protocol {PROTOCOL_VERSION}"]
+    if result.get("protocol_mode") == "paused":
+        lines.extend(
+            (
+                "- Protocol mode: paused",
+                "- Contract enforcement: suspended by explicit user choice",
+                "- Files: retained; do not delete or uninstall the protocol",
+                "- Resume only when the user explicitly says: 恢复模型交接协议。",
+            )
+        )
+        lines.extend(f"- ERROR: {error}" for error in result["errors"])
+        lines.extend(f"- WARNING: {warning}" for warning in result["warnings"])
+        return "\n".join(lines).rstrip() + "\n"
     if handoff:
         for key in REQUIRED_METADATA:
             lines.append(f"- {key}: {handoff.metadata.get(key, 'missing')}")
@@ -586,7 +620,9 @@ def main() -> int:
             print(f"ERROR: {error}")
         for warning in result["warnings"]:
             print(f"WARNING: {warning}")
-        if not result["errors"]:
+        if not result["errors"] and result.get("protocol_mode") == "paused":
+            print("model handoff protocol: PAUSED (files retained)")
+        elif not result["errors"]:
             print("model handoff check: PASS")
     oversized_snapshot = args.command == "snapshot" and "ERROR: bootstrap would be" in snapshot
     return 1 if result["errors"] or oversized_snapshot else 0

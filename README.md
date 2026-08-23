@@ -86,6 +86,7 @@ docs/MODEL_HANDOFF_PLAYBOOK.md
 .model-handoff/update.py
 .model-handoff/FEEDBACK.md
 .model-handoff/recover-review-selector.txt
+.model-handoff/CONTROL.md
 ```
 
 For existing destinations, preview reports `identical`, `differs`, or `conflict`
@@ -118,6 +119,23 @@ After: Continue from the project handoff.
 
 The incoming model reads `To role` from the bootstrap. Role-specific prompts are
 only needed when the user intentionally overrides the recorded route.
+
+The contract is optional at runtime and does not need to be uninstalled. To
+pause it while keeping every file, say:
+
+```text
+Exit the model-handoff protocol and retain its files.
+```
+
+To resume later, say:
+
+```text
+Resume the model-handoff protocol.
+```
+
+These commands change `.model-handoff/CONTROL.md` between `active` and `paused`.
+While paused, ordinary work ignores the handoff contract and snapshot stays
+minimal. Resume revalidates live state before continuing.
 
 If an unexpected Bugbot/Security selector still appears, do not choose either
 option. Send one routing-correction sentence:

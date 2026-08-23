@@ -51,6 +51,9 @@ class InstallerTests(unittest.TestCase):
             recovery = (
                 target / ".model-handoff/recover-review-selector.txt"
             ).read_text(encoding="utf-8")
+            control = (target / ".model-handoff/CONTROL.md").read_text(
+                encoding="utf-8"
+            )
         self.assertIn("project-specific | protocol-generic | unclear", feedback)
         self.assertIn("Never push an unreviewed target-project rule", playbook)
         self.assertIn("Milestone verification depth versus specialized review", playbook)
@@ -74,6 +77,9 @@ class InstallerTests(unittest.TestCase):
         self.assertIn("check=False", updater)
         self.assertIn("不要选择审查器", recovery)
         self.assertIn("Verification mode", recovery)
+        self.assertIn("Mode: `active`", control)
+        self.assertIn("退出模型交接协议，保留文件。", control)
+        self.assertIn("恢复模型交接协议。", control)
 
     def test_apply_never_overwrites_existing_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -162,6 +162,50 @@ class HandoffTests(unittest.TestCase):
         self.assertIn("Context delta and evidence pointers", snapshot)
         self.assertIn("Observed", snapshot)
 
+    def test_paused_protocol_retains_files_and_skips_contract_injection(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            control_path = target / ".model-handoff/CONTROL.md"
+            control_path.write_text(
+                control_path.read_text(encoding="utf-8").replace(
+                    "Mode: `active`", "Mode: `paused`"
+                ),
+                encoding="utf-8",
+            )
+            (target / "MODEL_HANDOFF.md").write_text("stale packet\n", encoding="utf-8")
+            (target / "STATUS.md").write_text("stale status\n", encoding="utf-8")
+            result = inspect_project(target)
+            snapshot = render_snapshot(result)
+        self.assertEqual([], result["errors"])
+        self.assertEqual("paused", result["protocol_mode"])
+        self.assertIn("Protocol mode: paused", snapshot)
+        self.assertIn("Files: retained", snapshot)
+        self.assertIn("恢复模型交接协议。", snapshot)
+        self.assertNotIn("Objective and user-visible outcome", snapshot)
+
+    def test_active_protocol_revalidates_stale_contract_after_resume(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            (target / "MODEL_HANDOFF.md").write_text("stale packet\n", encoding="utf-8")
+            result = inspect_project(target)
+        self.assertEqual("active", result["protocol_mode"])
+        self.assertTrue(result["errors"])
+
+    def test_invalid_protocol_control_mode_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            control_path = target / ".model-handoff/CONTROL.md"
+            control_path.write_text(
+                control_path.read_text(encoding="utf-8").replace(
+                    "Mode: `active`", "Mode: `sometimes`"
+                ),
+                encoding="utf-8",
+            )
+            result = inspect_project(target)
+        self.assertTrue(
+            any("invalid protocol control mode" in item for item in result["errors"])
+        )
+
     def test_verification_snapshot_adds_diff_commands_decisions_and_route(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)

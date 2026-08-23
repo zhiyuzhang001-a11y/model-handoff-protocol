@@ -58,6 +58,7 @@ python3 scripts/install.py /你的/项目路径 --apply
 安装器不会覆盖已有文件，也不会修改全局Codex、编辑器或Agent配置。
 它会同时安装无依赖的`.model-handoff/handoff.py`检查器。
 也会安装`.model-handoff/recover-review-selector.txt`，保存偶发二选一时的一句恢复指令。
+还会安装`.model-handoff/CONTROL.md`，用于在不删除任何文件的情况下暂停或恢复协议。
 还会安装`.model-handoff/update.py`；以后不必手工再次克隆，需要检查上游更新时只需运行：
 
 ```bash
@@ -91,6 +92,22 @@ python3 .model-handoff/handoff.py snapshot .
 ```
 
 新模型会从交接中的`To role`自动判断是继续执行还是进行审查。
+
+用户可以随时退出合同约束，无需卸载或删除文件：
+
+```text
+退出模型交接协议，保留文件。
+```
+
+以后要重新使用时只需说：
+
+```text
+恢复模型交接协议。
+```
+
+这两句只会把`.model-handoff/CONTROL.md`在`active`和`paused`之间切换。
+`paused`时普通任务不执行交接合同，snapshot也不注入任务内容；恢复时先重新验证实时状态。
+
 如果仍然偶发Bugbot/Security二选一，不要选1或2，只需发送：
 
 ```text

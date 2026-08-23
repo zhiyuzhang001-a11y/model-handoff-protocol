@@ -375,6 +375,21 @@ irrelevant adversarial variants.
 The ordinary incoming phrase needs no verification keyword. A bare `/review` is
 reserved for the optional specialized skill and is never a protocol continuation.
 
+## Pause or resume the protocol
+
+The user may leave the contract at any time without uninstalling it. On
+`退出模型交接协议，保留文件。`, set `.model-handoff/CONTROL.md` to
+`Mode: paused`, retain every protocol file and live record, and stop applying
+handoff obligations to ordinary work. Do not force a full handoff merely to
+pause; only stabilize an already-running owned operation if abandoning it would
+leave the project unsafe or unrecoverable.
+
+While paused, snapshot emits only the paused state and resume instruction, so it
+does not inject the task contract. Only the explicit user instruction
+`恢复模型交接协议。` changes the control file back to `Mode: active`. Resuming
+does not trust stale state: run the checker, repair or refresh the live packet,
+then continue. Updating, pausing, or resuming never deletes protocol files.
+
 ## Privacy before publishing a real packet
 
 Verify live handoffs for:

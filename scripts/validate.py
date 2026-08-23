@@ -63,6 +63,12 @@ def validate() -> list[str]:
     if handoff.metadata.get("Protocol version") != PROTOCOL_VERSION:
         errors.append("handoff template protocol version is not current")
 
+    control = parse_markdown(
+        (ROOT / "templates/PROTOCOL_CONTROL.md").read_text(encoding="utf-8")
+    )
+    if control.metadata.get("Mode") != "active":
+        errors.append("protocol control template must default to active")
+
     prompt_requirements = {
         "prompts/outgoing-handoff.txt": "handoff.py check",
         "prompts/incoming-implementer.txt": "handoff.py snapshot",
@@ -91,6 +97,9 @@ def validate() -> list[str]:
             "Obey `Verification mode`",
             "Never ask the user to choose a reviewer",
             "return to the project handoff",
+            ".model-handoff/CONTROL.md",
+            "Mode: paused",
+            "Only explicit user resume",
         ),
         ".cursor/rules/project-execution.mdc": (
             "deterministic hooks/barriers",
@@ -109,6 +118,8 @@ def validate() -> list[str]:
             "self-verification into a substitute for an independent gate",
             "The checker rejects missing, invalid, or state-conflicting modes",
             "Recover from an accidental specialized-review selector",
+            "Pause or resume the protocol",
+            "Updating, pausing, or resuming never deletes protocol files",
         ),
         "templates/MODEL_HANDOFF.md": (
             "Root invariant:",
@@ -148,6 +159,8 @@ def validate() -> list[str]:
             "Verification mode: self | independent | bugbot | security | none",
             "Every stage is verified, but a model switch is not always required",
             "Do not select a reviewer",
+            "Exit the model-handoff protocol and retain its files",
+            "Resume the model-handoff protocol",
             "economical models most simple",
             "A second post-fix failure",
             "python3 .model-handoff/update.py .",
@@ -156,6 +169,8 @@ def validate() -> list[str]:
         "README.zh-CN.md": (
             "通用候选不应直接推送到GitHub `main`",
             "不要选择审查器",
+            "退出模型交接协议，保留文件",
+            "恢复模型交接协议",
             "Recommended capability: economical | capable",
             "Verification mode: self | independent | bugbot | security | none",
             "不要选择审查器",
