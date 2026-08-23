@@ -24,6 +24,35 @@ PRIVATE_PATH_PATTERNS = (
     re.compile(r"/home/[A-Za-z0-9._-]+/"),
     re.compile(r"[A-Za-z]:\\Users\\[A-Za-z0-9._-]+\\"),
 )
+EXAMPLE_REQUIREMENTS = {
+    "examples/planner-to-implementer.md": (
+        "full regression passes before any",
+        "Only after every batch gate passes, return once for verification",
+        "complete both focused and full regression gates",
+    ),
+    "examples/implementer-to-verifier.md": (
+        "before this `EXECUTION_TO_VERIFY` packet",
+        "Every focused and full-regression gate in the batch completed before handoff",
+        "completed focused/full-regression evidence",
+    ),
+    "examples/capable-self-verification.md": (
+        "one boundary record, one self closeout, zero additional snapshots",
+        "Do not switch models or run snapshot",
+        "proves only contract",
+    ),
+}
+EXAMPLE_FORBIDDEN = {
+    "examples/planner-to-implementer.md": (
+        "Return for review before full regression",
+    ),
+    "examples/implementer-to-verifier.md": (
+        "Full regression has not run",
+        "authorize the full regression",
+    ),
+    "examples/capable-self-verification.md": (
+        "Run snapshot and create a second handoff",
+    ),
+}
 
 
 def _forbidden_terms() -> tuple[str, ...]:
@@ -39,6 +68,17 @@ def _text_files() -> list[Path]:
         if path.suffix.lower() in {".md", ".mdc", ".txt", ".py", ".yml", ".yaml"}:
             paths.append(path)
     return sorted(paths)
+
+
+def _example_policy_errors(relative: str, text: str) -> list[str]:
+    errors: list[str] = []
+    for phrase in EXAMPLE_REQUIREMENTS.get(relative, ()):
+        if phrase not in text:
+            errors.append(f"example missing batch-boundary evidence in {relative}: {phrase}")
+    for phrase in EXAMPLE_FORBIDDEN.get(relative, ()):
+        if phrase in text:
+            errors.append(f"example violates the verification boundary in {relative}: {phrase}")
+    return errors
 
 
 def validate() -> list[str]:
@@ -132,6 +172,8 @@ def validate() -> list[str]:
             "one consolidated",
             "Passing it proves only contract consistency",
             "integrated execution closeout, not a handoff",
+            "same uncompacted context",
+            "creates no second handoff",
         ),
         "templates/MODEL_HANDOFF.md": (
             "Root invariant:",
@@ -233,6 +275,7 @@ def validate() -> list[str]:
         text = example.read_text(encoding="utf-8")
         if "abbreviated teaching example, not a valid live packet" not in text:
             errors.append(f"example missing non-copyable warning: {example.relative_to(ROOT)}")
+        errors.extend(_example_policy_errors(example.relative_to(ROOT).as_posix(), text))
 
     for source, _ in INSTALLS:
         if not (ROOT / source).is_file():

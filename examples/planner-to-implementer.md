@@ -30,6 +30,8 @@ returns without restarting the provider.
 ## Acceptance and required evidence
 
 - `python -m unittest tests.test_cache tests.test_service -v` passes.
+- `python -m unittest discover -s tests -v` full regression passes before any
+  `EXECUTION_TO_VERIFY` packet or `ACCEPT_STAGE_1` request.
 - Capacity is 64; timeout/error responses are not cached; close clears the cache.
 - A repeated focused test proves the provider starts once.
 
@@ -42,7 +44,8 @@ returns without restarting the provider.
 
 1. Add the in-memory cache and focused tests.
 2. Run the focused suite and record counts.
-3. Return for review before full regression.
+3. Run the full regression and record counts.
+4. Only after every batch gate passes, return once for verification.
 
 ## Exact next action
 
@@ -66,4 +69,5 @@ smallest edit region. Do not edit before confirming timeout/error behavior.
 
 ## Requested response from the next role
 
-Implement the bounded change and request `ACCEPT_STAGE_1` with exact evidence.
+Implement the bounded change, complete both focused and full regression gates,
+then request `ACCEPT_STAGE_1` once with exact evidence.

@@ -105,8 +105,11 @@ mechanical/test batch to the economical model.
 
 ## Staged context loading
 
-Incoming roles load context in three stages and stop as soon as the contract is
-safe to execute or verify:
+New, independent, or compacted contexts load context in three stages and stop as
+soon as the contract is safe to execute or verify. An eligible `self` closeout in
+the same uncompacted context with consistent records is the explicit exception:
+it reuses the already loaded contract, creates no second handoff, and skips the
+snapshot step.
 
 1. **Bootstrap:** run `python3 .model-handoff/handoff.py snapshot .`. This yields
    status, live contract, observed Git state, open risks, and evidence pointers

@@ -158,7 +158,7 @@ python3 .model-handoff/handoff.py snapshot .
 精确文件章节。修改前核对合同，从唯一下一步开始，在未触发停止条件时完成整个批次。
 ```
 
-切换到规划/复核模型：
+切换到独立规划/复核模型：
 
 ```text
 你现在承担planner/verifier角色。先运行交接snapshot，再按交接要求的独立程度检查Git diff和证据，

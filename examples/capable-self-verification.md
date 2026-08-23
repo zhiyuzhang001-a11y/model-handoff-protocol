@@ -16,6 +16,15 @@ This is an abbreviated teaching example, not a valid live packet. Start from
 
 - The capable model implemented a bounded local refactor in the named files.
 - All frozen focused and regression gates passed.
+- `EXECUTION_TO_VERIFY` was recorded once, only after the whole batch passed:
+  one boundary record, one self closeout, zero additional snapshots.
+
+## Commands and results
+
+- Focused and full-regression commands both exited 0; exact counts are recorded
+  in the named evidence artifact.
+- `python3 .model-handoff/handoff.py check .` passed and proves only contract,
+  status, Git, and routing consistency—not code correctness or test evidence.
 
 ## Risks, deviations, and unknowns
 
@@ -24,6 +33,7 @@ This is an abbreviated teaching example, not a valid live packet. Start from
 
 ## Requested response from the next role
 
-Do not switch models. In this context, change role to planner/verifier and inspect
-only plan conformance, diff scope, named gates, evidence, and deviations. Return
+Do not switch models or run snapshot. Reuse the already loaded checked contract,
+change role to planner/verifier, and perform one integrated closeout over plan
+conformance, final diff scope, named gates, evidence, and deviations. Return
 `ACCEPT_STAGE` or stop and reroute to `independent` if an independence trigger appears.

@@ -28,6 +28,8 @@ This is an abbreviated teaching example, not a valid live packet. Start from
 
 - `python -m unittest tests.test_cache tests.test_service -v`
 - Exit 0; 23 tests passed in 1.4 seconds.
+- `python -m unittest discover -s tests -v`
+- Exit 0; 96 tests passed in 4.8 seconds before this `EXECUTION_TO_VERIFY` packet.
 - One initial assertion expected two provider starts and failed before the test
 was corrected to the frozen requirement of one; no source state changed.
 
@@ -42,7 +44,7 @@ was corrected to the frozen requirement of one; no source state changed.
 ## Risks, deviations, and unknowns
 
 - No deviation from scope.
-- Full regression has not run because the plan requires review first.
+- Every focused and full-regression gate in the batch completed before handoff.
 
 ## Owned live resources
 
@@ -50,5 +52,5 @@ None.
 
 ## Requested response from the next role
 
-Inspect the two-file diff and choose `ACCEPT_STAGE_1` or return a named defect and
-acceptance delta. If accepted, authorize the full regression as the next action.
+Inspect the two-file diff and completed focused/full-regression evidence, then
+choose `ACCEPT_STAGE_1` or return one consolidated defect batch and acceptance delta.
