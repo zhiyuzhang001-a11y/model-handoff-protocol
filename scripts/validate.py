@@ -29,11 +29,13 @@ EXAMPLE_REQUIREMENTS = {
         "full regression passes before any",
         "Only after every batch gate passes, return once for verification",
         "complete both focused and full regression gates",
+        "read-only full regression without widening edit scope",
     ),
     "examples/implementer-to-verifier.md": (
         "before this `EXECUTION_TO_VERIFY` packet",
         "Every focused and full-regression gate in the batch completed before handoff",
         "completed focused/full-regression evidence",
+        "focused/full-regression commands and Git diff",
     ),
     "examples/capable-self-verification.md": (
         "one boundary record, one self closeout, zero additional snapshots",

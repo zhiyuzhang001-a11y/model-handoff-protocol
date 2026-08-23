@@ -63,7 +63,8 @@ smallest edit region. Do not edit before confirming timeout/error behavior.
 
 ## Authority and stop conditions
 
-- Continue automatically inside the two named modules and focused tests.
+- Continue automatically inside the two named source/test modules; run both the
+  focused suite and read-only full regression without widening edit scope.
 - Stop if cache identity cannot include repository, query type, and target range,
   or if provider ownership must become persistent.
 

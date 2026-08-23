@@ -38,7 +38,7 @@ was corrected to the frozen requirement of one; no source state changed.
 - Changed since previous handoff: cache implementation and focused tests added.
 - Must read now: diff for `src/service.py` and `tests/test_service.py`.
 - Read on demand: `reports/M4_BASELINE.md` only if test-count attribution differs.
-- Evidence artifacts: focused test command and Git diff named above.
+- Evidence artifacts: focused/full-regression commands and Git diff named above.
 - Safe to skip: M0–M3 reports and unchanged design alternatives.
 
 ## Risks, deviations, and unknowns
