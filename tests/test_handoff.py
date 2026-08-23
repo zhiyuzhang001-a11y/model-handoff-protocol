@@ -206,6 +206,55 @@ class HandoffTests(unittest.TestCase):
             any("invalid protocol control mode" in item for item in result["errors"])
         )
 
+    def test_0_5_to_0_6_migration_requires_complete_packet_and_adds_control(self) -> None:
+        current_packet = (
+            HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+            .replace("- From role: `planner/verifier`", "- From role: `implementer`")
+            .replace("- To role: `implementer`", "- To role: `planner/verifier`")
+            .replace(
+                "- Recommended capability: `economical`",
+                "- Recommended capability: `capable`",
+            )
+            .replace("- Verification mode: `none`", "- Verification mode: `independent`")
+        )
+        old_packet = (
+            current_packet.replace("- Protocol version: `0.6`", "- Protocol version: `0.5`")
+            .replace("EXECUTION_TO_VERIFY", "EXECUTION_TO_REVIEW")
+            .replace("planner/verifier", "planner/reviewer")
+            .replace("- Verification mode: `independent`", "- Review mode: `inline`")
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            control_path = target / ".model-handoff/CONTROL.md"
+            control_path.unlink()
+            (target / "MODEL_HANDOFF.md").write_text(old_packet, encoding="utf-8")
+
+            preinstall_errors = inspect_project(target)["errors"]
+            install_result = install(target, apply=True)
+            statuses = {
+                entry["path"]: entry["status"] for entry in install_result["entries"]
+            }
+            partial_errors = inspect_project(target)["errors"]
+
+            self.assertEqual("created", statuses[".model-handoff/CONTROL.md"])
+            self.assertEqual("differs", statuses["MODEL_HANDOFF.md"])
+            self.assertEqual(old_packet, (target / "MODEL_HANDOFF.md").read_text(encoding="utf-8"))
+            self.assertTrue(any("missing required file" in item for item in preinstall_errors))
+            self.assertTrue(any("protocol version must be 0.6" in item for item in partial_errors))
+            self.assertTrue(any("invalid handoff state" in item for item in partial_errors))
+            self.assertTrue(
+                any(
+                    "handoff metadata missing or placeholder: Verification mode" in item
+                    for item in partial_errors
+                )
+            )
+
+            (target / "MODEL_HANDOFF.md").write_text(current_packet, encoding="utf-8")
+            completed_errors = inspect_project(target)["errors"]
+
+        self.assertEqual([], completed_errors)
+
     def test_verification_snapshot_adds_diff_commands_decisions_and_route(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             target = self._project(directory)
@@ -330,8 +379,86 @@ class HandoffTests(unittest.TestCase):
             )
             (target / "MODEL_HANDOFF.md").write_text(accepted, encoding="utf-8")
             accepted_errors = inspect_project(target)["errors"]
-        self.assertTrue(any("requires /review-security" in item for item in errors))
+        self.assertTrue(any("requires exactly one /review-security" in item for item in errors))
         self.assertEqual([], accepted_errors)
+
+    def test_specialized_mode_rejects_malformed_duplicate_and_mixed_commands(self) -> None:
+        cases = (
+            ("security", "Run /review-security-extra.", "/review-security-extra"),
+            (
+                "bugbot",
+                "Run /review-bugbot and /review-security.",
+                "/review-bugbot, /review-security",
+            ),
+            (
+                "security",
+                "Run /review-security and /review-bugbot.",
+                "/review-security, /review-bugbot",
+            ),
+            (
+                "security",
+                "Run /review-security twice: /review-security.",
+                "/review-security, /review-security",
+            ),
+        )
+        for mode, requested, observed in cases:
+            with self.subTest(mode=mode, requested=requested):
+                with tempfile.TemporaryDirectory() as directory:
+                    target = self._project(directory)
+                    invalid = (
+                        HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+                        .replace(
+                            "- From role: `planner/verifier`",
+                            "- From role: `implementer`",
+                        )
+                        .replace(
+                            "- To role: `implementer`",
+                            "- To role: `planner/verifier`",
+                        )
+                        .replace(
+                            "- Recommended capability: `economical`",
+                            "- Recommended capability: `capable`",
+                        )
+                        .replace(
+                            "- Verification mode: `none`",
+                            f"- Verification mode: `{mode}`",
+                        )
+                        .replace("Implement and request ACCEPT_STAGE_1.", requested)
+                    )
+                    (target / "MODEL_HANDOFF.md").write_text(
+                        invalid, encoding="utf-8"
+                    )
+                    errors = inspect_project(target)["errors"]
+                self.assertTrue(
+                    any("requires exactly one" in item and observed in item for item in errors),
+                    errors,
+                )
+
+    def test_independent_mode_rejects_any_review_command(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            target = self._project(directory)
+            invalid = (
+                HANDOFF.replace("PLAN_TO_EXECUTE", "EXECUTION_TO_VERIFY")
+                .replace("- From role: `planner/verifier`", "- From role: `implementer`")
+                .replace("- To role: `implementer`", "- To role: `planner/verifier`")
+                .replace(
+                    "- Recommended capability: `economical`",
+                    "- Recommended capability: `capable`",
+                )
+                .replace(
+                    "- Verification mode: `none`",
+                    "- Verification mode: `independent`",
+                )
+                .replace(
+                    "Implement and request ACCEPT_STAGE_1.",
+                    "Run /review-security-extra and request ACCEPT_STAGE_1.",
+                )
+            )
+            (target / "MODEL_HANDOFF.md").write_text(invalid, encoding="utf-8")
+            errors = inspect_project(target)["errors"]
+        self.assertTrue(
+            any("Verification mode independent conflicts" in item for item in errors)
+        )
 
     def test_nonverification_state_rejects_active_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

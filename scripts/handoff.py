@@ -111,6 +111,9 @@ CONTEXT_FIELDS = (
     "Evidence artifacts",
     "Safe to skip",
 )
+REVIEW_COMMAND_PATTERN = re.compile(
+    r"(?<![\w/])(/review[^\s`'\".,;:!?)}\]，。；：！？、】》」』]*)"
+)
 
 
 @dataclass(frozen=True)
@@ -397,24 +400,26 @@ def inspect_project(root: Path) -> dict[str, Any]:
         errors.append("high-risk work cannot use Verification mode self; use independent verification")
 
     requested_response = handoff.sections.get("Requested response from the next role", "")
-    specialized_command = {
+    expected_specialized_command = {
         "bugbot": "/review-bugbot",
         "security": "/review-security",
     }.get(verification_mode)
-    if re.search(r"/review(?![-\w])", requested_response):
+    review_commands = REVIEW_COMMAND_PATTERN.findall(requested_response)
+    if "/review" in review_commands:
         errors.append(
             "generic /review is ambiguous; use Verification mode self/independent or an exact "
             "/review-bugbot or /review-security command"
         )
-    if specialized_command and specialized_command not in requested_response:
+    if expected_specialized_command and review_commands != [expected_specialized_command]:
+        observed = ", ".join(review_commands) if review_commands else "none"
         errors.append(
-            f"Verification mode {verification_mode} requires {specialized_command} in requested response"
+            f"Verification mode {verification_mode} requires exactly one "
+            f"{expected_specialized_command} and no other /review command; observed: {observed}"
         )
-    if verification_mode in {"self", "independent"} and re.search(
-        r"/review-(?:bugbot|security)", requested_response
-    ):
+    if not expected_specialized_command and review_commands:
         errors.append(
-            f"Verification mode {verification_mode} conflicts with a specialized gate request"
+            f"Verification mode {verification_mode or 'missing'} conflicts with /review "
+            "commands; only preselected bugbot or security mode may request one"
         )
     working_tree = handoff.metadata.get("Working tree", "").lower()
     if working_tree not in {"clean", "dirty"}:

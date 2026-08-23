@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Require exactly one boundary-matched specialized review command for Bugbot or
+  Security verification, reject mixed, duplicated, suffixed, or misplaced
+  commands, and cover complete versus partial protocol 0.5-to-0.6 migration.
+
 - Add phase-sized execution batching and a delegation break-even rule: economical
   models finish cohesive implementation/test/repair batches before handoff,
   capable models execute judgment-heavy work directly, and verifier findings are
