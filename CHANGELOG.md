@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add phase-sized execution batching and a delegation break-even rule: economical
+  models finish cohesive implementation/test/repair batches before handoff,
+  capable models execute judgment-heavy work directly, and verifier findings are
+  fixed locally when small or returned once as a consolidated correction batch.
+
 - Add a persistent `active | paused` control file so users can leave the contract
   at any time without deleting protocol files, keep paused bootstrap output
   minimal, and resume only through an explicit user instruction and revalidation.

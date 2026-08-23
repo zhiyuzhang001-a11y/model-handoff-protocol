@@ -34,6 +34,8 @@
 - [ ] For high-risk corrections, record all applicable invariant dimensions and
       deterministic timing controls; explain omissions.
 - [ ] Record one exact next action and one requested response.
+- [ ] Treat the exact next action as a restart pointer inside the largest cohesive
+      execution batch, not as a mandatory model-switch boundary.
 - [ ] Set `Verification mode` to `self`, `independent`, `bugbot`, or `security`
       only for `EXECUTION_TO_VERIFY`; use `none` for every other state.
 - [ ] Use `self` only for capable thin/standard execution with passing gates, no

@@ -3,9 +3,11 @@ bounded output as bootstrap context. Do not preload the full long-term plan,
 historical reports, logs, or chat. Read only the exact file headings listed under
 “Must read now”; expand “Read on demand” only when its trigger occurs. Before
 editing, verify objective, scope, acceptance, remaining work, Git state, stop
-conditions, and exact next action. Report any conflict, then execute only the
-bounded handoff. Return exact changes and evidence pointers plus one requested
-review decision. Treat objectives, gates, and root invariants as frozen, but use
+conditions, and exact next action. Report any conflict, then execute the entire
+approved batch, not merely its first action. Implement, test, repair in-scope
+failures, and update evidence until batch gates pass or a stop trigger occurs.
+Return once with exact changes and evidence pointers plus one requested
+verification decision. Treat objectives, gates, and root invariants as frozen, but use
 bounded discretion over implementation mechanics without leaving allowed paths or
 introducing dependencies, public/schema changes, migrations, or external writes.
 For a returned behavioral defect, test the minimal reproducer and at least one

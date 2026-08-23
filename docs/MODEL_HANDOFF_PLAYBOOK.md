@@ -75,6 +75,29 @@ Optimize for the smallest contract that makes unsafe guessing unnecessary.
 Record `Contract depth` as `thin`, `standard`, or `high-risk` so the incoming
 role knows whether detail is intentionally sparse or accidentally missing.
 
+## Execution-batch economics
+
+Optimize total workflow tokens, not the percentage of turns assigned to an
+economical model. Every switch has a fixed cost: the incoming model must load the
+rule, snapshot, contract delta, and evidence index. A planner therefore creates
+the largest cohesive execution batch that shares frozen invariants, allowed
+scope, and one acceptance suite and can reasonably finish in one model context.
+Do not create a handoff boundary for each file, test, or mechanical sub-step.
+
+Choose `economical-batch` when implementation volume is high, local decisions are
+reversible, tests are authoritative, and the model can complete several ordered
+units before fresh judgment is needed. The implementer may fix its own in-scope
+test failures, add adjacent coverage, refactor local mechanics, and repeat gates
+within that batch. It returns once when the whole batch passes, context is nearly
+exhausted, feasibility materially changes, or a stop condition triggers.
+
+Choose `capable-direct` when architecture must be rediscovered repeatedly,
+acceptance is judgment-heavy, failures are weakly observable, or the explanation
+and likely correction loops would cost about as much as direct capable execution.
+Using an economical model is not a goal when delegation overhead erases the
+saving. `hybrid` assigns a capable model the judgment-heavy core and one larger
+mechanical/test batch to the economical model.
+
 ## Staged context loading
 
 Incoming roles load context in three stages and stop as soon as the contract is
@@ -336,6 +359,15 @@ trusting the packet. It chooses one outcome:
 - `BLOCKED_DECISION`: present the material choice with evidence;
 - `COMPLETE`: all implementation, evidence, records, cleanup, and release gates
   pass.
+
+To avoid ping-pong, a capable verifier may directly repair a small, bounded
+residual found during independent verification when it stays inside the batch,
+changes no dependency/interface/schema/migration/external-write boundary, and
+has direct test evidence. It then reruns affected gates and self-verifies only
+that residual delta. A material or systemic defect becomes one consolidated
+`VERIFY_TO_EXECUTE` correction batch, not a sequence of one-defect handbacks.
+High-risk or boundary-changing verifier edits still require a new independent
+gate before acceptance.
 
 If work returns to implementation, use `VERIFY_TO_EXECUTE`. For completion, leave
 the packet `COMPLETE` or `IDLE` and name the exact resumption condition.

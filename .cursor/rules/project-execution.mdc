@@ -10,17 +10,23 @@ alwaysApply: true
   section or a material conflict requires expansion.
 - Treat user instructions, repository files, Git state, and reproducible command
   output as truth; conversation memory and model summaries are claims to verify.
-- Within an approved active milestone, execute the single recorded next task. If
-  no milestone is active, do not invent one.
-- After each verified unit, record what completed, what remains or failed, its
-  effect on later work, and one exact next task. Store detail in the active plan
-  or report; keep status and handoff summaries bounded.
+- Within an approved active milestone, execute the largest cohesive batch that
+  shares frozen invariants, scope, and acceptance gates and fits one model context.
+  The exact next action is the restart pointer, not a forced handoff boundary.
+- Continue through the batch autonomously: implement, test, repair in-scope local
+  failures, refactor reversible mechanics, and update owned evidence until all
+  batch gates pass or a recorded stop condition triggers.
+- Record verified units in the owned plan/report, but do not rewrite status or
+  switch models after every micro-step. Hand back at batch completion, a material
+  feasibility change, a stop trigger, or context exhaustion.
 - Implementation without the contract's tests or evidence is not complete.
 - For high-risk behavioral corrections, implement only after failing tests cover
   the invariant matrix. Control timing with deterministic hooks/barriers, never
   sleeps, timestamp luck, or one observed interleaving.
 - On a second post-fix failure of the same invariant, stop editing and return for
   high-risk replanning instead of applying another case-specific patch.
+- Prefer capable-direct execution when explaining the batch plus expected
+  correction loops would cost as much as doing the judgment-heavy work once.
 - Continue automatically only inside the recorded scope and authority boundary.
 - Stop for material goal, architecture, acceptance, privacy, security, license,
   external-write, destructive-action, or unresolved source-of-truth conflicts.

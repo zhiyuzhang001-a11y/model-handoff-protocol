@@ -5,9 +5,13 @@ implementation, and verification models without treating chat history as durable
 project state.
 
 The protocol is model-agnostic. By default, a cost-efficient model performs most
-bounded implementation, while a capable model plans, reviews at the required
+bounded implementation, while a capable model plans, verifies at the required
 independence level, and also implements the smaller set of difficult or high-risk
 units. Roles—not model names—still define authority.
+In deeper phases, delegation is phase-sized rather than micro-task-sized: an
+economical model completes one cohesive implementation/test/repair batch before
+returning, while a capable model executes directly when handoff and correction
+overhead would erase the expected saving.
 
 ## Why this exists
 
@@ -197,7 +201,8 @@ After switching to an implementer:
 
 ```text
 Act as implementer. Run the handoff snapshot, read only its exact required
-context headings, verify the contract, then execute the exact next action.
+context headings, verify the contract, begin at the exact next action, and finish
+the approved execution batch unless a stop condition triggers.
 ```
 
 For a same-context capable verification when the checked mode is `self`:
@@ -227,6 +232,14 @@ when that is the safer allocation. Any model writing code assumes the implemente
 role. Capable-model thin/standard work may receive same-context `self` verification
 when all gates pass and no boundary changed. High-risk work always receives a
 separate capable verification.
+
+For deep phases, plan an execution batch rather than many tiny handoffs. The
+batch is the largest set of ordered units that shares one frozen scope, invariant
+set, and acceptance suite and fits one model context. The economical implementer
+may complete local repairs and rerun gates inside it. A capable verifier handles
+small residual corrections directly; larger findings return once as a
+consolidated correction batch. Choose `capable-direct` whenever delegation
+context plus likely retries approaches the cost of direct capable execution.
 
 For high-risk behavioral corrections, cover every applicable value, identity,
 path, ordering, observation/publication, replacement, failure, and interruption

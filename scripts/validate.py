@@ -104,6 +104,9 @@ def validate() -> list[str]:
         ".cursor/rules/project-execution.mdc": (
             "deterministic hooks/barriers",
             "second post-fix failure",
+            "largest cohesive batch",
+            "not a forced handoff boundary",
+            "correction loops would cost as much",
         ),
         "docs/MODEL_HANDOFF_PLAYBOOK.md": (
             "Root-cause corrections and bounded autonomy", "Do not invent adversarial cases",
@@ -120,6 +123,9 @@ def validate() -> list[str]:
             "Recover from an accidental specialized-review selector",
             "Pause or resume the protocol",
             "Updating, pausing, or resuming never deletes protocol files",
+            "Execution-batch economics",
+            "largest cohesive execution batch",
+            "one consolidated",
         ),
         "templates/MODEL_HANDOFF.md": (
             "Root invariant:",
@@ -132,12 +138,15 @@ def validate() -> list[str]:
         ),
         "templates/IMPLEMENTATION_PLAN.md": (
             "Execution routing:",
+            "economical-batch | capable-direct | hybrid",
+            "Batch boundary:",
             "Verification routing:",
             "High-risk coverage matrix:",
         ),
         "prompts/incoming-implementer.txt": (
             "root invariants", "returned behavioral defect", "introducing dependencies",
             "deterministic hooks or barriers", "second post-fix failure",
+            "execute the entire", "approved batch",
         ),
         "prompts/incoming-verifier.txt": (
             "Obey the checked `Verification mode`",
@@ -163,6 +172,8 @@ def validate() -> list[str]:
             "Resume the model-handoff protocol",
             "economical models most simple",
             "A second post-fix failure",
+            "execution batch rather than many tiny handoffs",
+            "capable-direct",
             "python3 .model-handoff/update.py .",
             "Preview first; never overwrite differs/conflict",
         ),
@@ -178,6 +189,8 @@ def validate() -> list[str]:
             "不一定切换模型",
             "默认由经济模型执行大多数简单",
             "修复后第二次失败",
+            "最大安全执行批次",
+            "capable-direct",
             "python3 .model-handoff/update.py .",
             "绝不覆盖 differs 或 conflict",
         ),

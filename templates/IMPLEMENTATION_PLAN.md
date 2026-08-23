@@ -17,7 +17,8 @@ completed milestone history is not bootstrap context.
 
 - Goal: `<bounded result>`
 - Non-goals: `<deferred work>`
-- Execution routing: `<economical model for most bounded units; capable model for planning/verification and judgment-heavy or high-risk units; independent verification owner>`
+- Execution routing: `<economical-batch | capable-direct | hybrid, with delegation break-even reason>`
+- Batch boundary: `<largest cohesive ordered units sharing scope, invariants, and one acceptance suite; completion and context limit>`
 - Verification routing: `<self for eligible capable thin/standard execution; otherwise separate capable or specialized gate>`
 - Acceptance: `<commands, thresholds, artifacts, and cleanup>`
 - High-risk coverage matrix: `<applicable dimensions, omitted reasons, and deterministic timing control; or not applicable>`
