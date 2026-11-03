@@ -13,6 +13,10 @@ economical model completes one cohesive implementation/test/repair batch before
 returning, while a capable model executes directly when handoff and correction
 overhead would erase the expected saving.
 
+[Run the offline handoff fixture](docs/portfolio/fixture-walkthrough.md) to see
+the bounded snapshot an incoming implementer receives.
+[中文说明](README.zh-CN.md)
+
 ## Why this exists
 
 Model switches, new conversations, and context compaction can lose unstated
@@ -47,6 +51,10 @@ records the diff base, owned versus pre-existing changes, command/exit/count
 evidence, failures, deviations, risks, cleanup, and one named verification decision.
 The planner/verifier inspects the referenced diff and evidence; independence is
 risk-based rather than automatic.
+
+The [live packet template](templates/MODEL_HANDOFF.md) records decisions and
+evidence. The [snapshot command](scripts/handoff.py) reads it with the
+[status template](templates/STATUS.md) and renders the current task's entry point.
 
 ## Quick start
 
